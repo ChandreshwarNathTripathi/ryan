@@ -1,7 +1,7 @@
 {
-  "name": "xshotel-backend",
+  "name": "xshostel-backend",
   "version": "1.0.0",
-  "description": "Backend REST API for XShotel Management System",
+  "description": "Backend REST API for XSHostel Management System",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -9,15 +9,15 @@
     "seed": "node src/utils/seeder.js"
   },
   "keywords": [
-    "xshotel",
-    "hotel-management",
+    "xshostel",
+    "hostel-management",
     "express",
     "mongodb",
     "mongoose",
     "jwt",
     "rest-api"
   ],
-  "author": "Syed Rayyan & Team XShotel",
+  "author": "Syed Rayyan & Team XSHostel",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",

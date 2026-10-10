@@ -48,7 +48,7 @@ app.get('/api/health', (req, res) => {
 
   res.status(200).json({
     status: 'OK',
-    service: 'XShotel REST API',
+    service: 'XSHostel REST API',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
