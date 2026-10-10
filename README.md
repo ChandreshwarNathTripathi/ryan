@@ -134,6 +134,7 @@ xshostel/
 │   │   ├── ISSUE_08_admin_dashboard_analytics.md
 │   │   ├── ISSUE_09_testing_security_documentation.md
 │   │   └── ISSUE_10_collaboration_deployment.md
+│   ├── TEAM_DEVELOPMENT_GUIDE.md # Comprehensive 4-member step-by-step developer manual
 │   └── team_distribution.md     # 4-member roles and pull request matrix
 ├── README.md
 └── .gitignore

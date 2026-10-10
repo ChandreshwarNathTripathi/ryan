@@ -98,3 +98,4 @@ gitGraph
 2. **Issue Linking**: Commit messages and Pull Requests reference the target issue (e.g. `feat: implement bed capacity conflict prevention (Closes #6)`).
 3. **Peer Review**: Before any PR is merged into `main`, Team Leader Syed Rayyan reviews functionality, security, and test verification.
 4. **Clean Builds**: Production builds (`npm run build` and `node src/utils/testSuite.js`) must pass 100% prior to closing issues.
+5. **Detailed Developer Manual**: Refer to [`docs/TEAM_DEVELOPMENT_GUIDE.md`](./TEAM_DEVELOPMENT_GUIDE.md) for the complete chronological execution order, code blueprints, and verification commands for Member 2, Member 3, and Member 4.
