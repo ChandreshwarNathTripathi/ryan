@@ -36,7 +36,7 @@ const request = (method, path, data = null, token = null) => {
 
 const runTests = async () => {
   console.log('====================================================');
-  console.log('   XSHOTEL REST API AUTOMATED VERIFICATION SUITE   ');
+  console.log('  XSHOSTEL REST API AUTOMATED VERIFICATION SUITE   ');
   console.log('====================================================\n');
 
   let passed = 0;
@@ -57,64 +57,67 @@ const runTests = async () => {
     const health = await request('GET', '/api/health');
     assert(health.status === 200 && health.data.status === 'OK', 'Health API responds 200 OK');
 
-    // 2. Admin Login
+    // 2. Warden Admin Login
     const adminLogin = await request('POST', '/api/auth/login', {
-      email: 'admin@xshotel.com',
+      email: 'admin@xshostel.com',
       password: 'Admin@123',
     });
-    assert(adminLogin.status === 200 && adminLogin.data.token, 'Admin login succeeds with JWT');
+    assert(adminLogin.status === 200 && adminLogin.data.token, 'Warden Admin login succeeds with JWT');
     const adminToken = adminLogin.data.token;
 
-    // 3. Guest Login
-    const guestLogin = await request('POST', '/api/auth/login', {
-      email: 'guest@xshotel.com',
-      password: 'Guest@123',
+    // 3. Student Login
+    const studentLogin = await request('POST', '/api/auth/login', {
+      email: 'student@xshostel.com',
+      password: 'Student@123',
     });
-    assert(guestLogin.status === 200 && guestLogin.data.token, 'Guest login succeeds with JWT');
-    const guestToken = guestLogin.data.token;
+    assert(studentLogin.status === 200 && studentLogin.data.token, 'Student login succeeds with JWT');
+    const studentToken = studentLogin.data.token;
 
     // 4. Verify Password hash is omitted
-    assert(guestLogin.data.data.passwordHash === undefined, 'Password hash is excluded from responses');
+    assert(studentLogin.data.data.passwordHash === undefined, 'Password hash is excluded from responses');
 
     // 5. Auth /me endpoint
-    const meRes = await request('GET', '/api/auth/me', null, guestToken);
-    assert(meRes.status === 200 && meRes.data.data.email === 'guest@xshotel.com', 'GET /api/auth/me returns guest profile');
+    const meRes = await request('GET', '/api/auth/me', null, studentToken);
+    assert(meRes.status === 200 && meRes.data.data.email === 'student@xshostel.com', 'GET /api/auth/me returns student profile with Student ID');
 
     // 6. Non-admin attempting admin endpoint
-    const forbiddenRes = await request('GET', '/api/admin/stats', null, guestToken);
-    assert(forbiddenRes.status === 403, 'Regular guest cannot access admin stats (Role-Based Access Control)');
+    const forbiddenRes = await request('GET', '/api/admin/stats', null, studentToken);
+    assert(forbiddenRes.status === 403, 'Regular student cannot access warden stats (Role-Based Access Control)');
 
-    // 7. Admin stats
+    // 7. Warden stats
     const statsRes = await request('GET', '/api/admin/stats', null, adminToken);
-    assert(statsRes.status === 200 && statsRes.data.data.rooms.total > 0, 'Admin can access stats and room counts');
+    assert(statsRes.status === 200 && statsRes.data.data.rooms.totalBeds > 0, 'Warden can access hostel bed analytics and occupancy');
 
-    // 8. Fetch rooms catalog
+    // 8. Fetch hostel rooms catalog
     const roomsRes = await request('GET', '/api/rooms');
-    assert(roomsRes.status === 200 && roomsRes.data.count > 0, 'GET /api/rooms returns active suite catalog');
+    assert(roomsRes.status === 200 && roomsRes.data.count > 0, 'GET /api/rooms returns active hostel dorm catalog');
     const firstRoom = roomsRes.data.data[0];
 
-    // 9. Fetch room by ID
+    // 9. Fetch hostel room by ID
     const singleRoom = await request('GET', `/api/rooms/${firstRoom._id}`);
-    assert(singleRoom.status === 200 && singleRoom.data.data.name === firstRoom.name, 'GET /api/rooms/:id returns single suite');
+    assert(singleRoom.status === 200 && singleRoom.data.data.name === firstRoom.name, 'GET /api/rooms/:id returns single hostel dorm');
 
-    // 10. Admin create room CRUD
-    const newRoomNumber = 'TEST-' + Math.floor(100 + Math.random() * 900);
+    // 10. Warden create hostel room CRUD
+    const newRoomNumber = 'DORM-' + Math.floor(100 + Math.random() * 900);
     const createRoomRes = await request(
       'POST',
       '/api/rooms',
       {
-        name: 'Test Automation Suite',
+        name: 'Block A Automated Test Dorm',
         roomNumber: newRoomNumber,
-        category: 'Deluxe',
-        description: 'Temporary suite for automated verification testing.',
-        pricePerNight: 350,
+        block: 'Block A (Boys)',
+        category: 'Double Sharing',
+        gender: 'Boys',
+        floor: 1,
+        description: 'Temporary dormitory for automated verification testing.',
+        pricePerNight: 280,
         capacity: 2,
-        amenities: ['Wi-Fi', 'Balcony'],
-        images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427'],
+        amenities: ['Study Desk', 'Campus Wi-Fi', 'Locker'],
+        images: ['https://images.unsplash.com/photo-1555854877-bab0e564b8d5'],
       },
       adminToken
     );
-    assert(createRoomRes.status === 201 && createRoomRes.data.data.roomNumber === newRoomNumber, 'Admin can CREATE new room');
+    assert(createRoomRes.status === 201 && createRoomRes.data.data.roomNumber === newRoomNumber, 'Warden can CREATE new hostel room');
     const createdRoomId = createRoomRes.data.data._id;
 
     // 11. Duplicate room number rejection
@@ -122,24 +125,25 @@ const runTests = async () => {
       'POST',
       '/api/rooms',
       {
-        name: 'Duplicate Suite',
+        name: 'Duplicate Dorm',
         roomNumber: newRoomNumber,
-        category: 'Deluxe',
+        block: 'Block A (Boys)',
+        category: 'Double Sharing',
         description: 'Should fail',
-        pricePerNight: 400,
+        pricePerNight: 300,
         capacity: 2,
         amenities: ['Wi-Fi'],
         images: ['https://example.com/img.jpg'],
       },
       adminToken
     );
-    assert(duplicateRes.status === 400, 'Duplicate room numbers are rejected');
+    assert(duplicateRes.status === 400, 'Duplicate hostel room numbers are rejected');
 
-    // 12. Create Booking on created room
+    // 12. Create Hostel Bed Allocation
     const checkInDate = new Date();
     checkInDate.setDate(checkInDate.getDate() + 20);
     const checkOutDate = new Date();
-    checkOutDate.setDate(checkOutDate.getDate() + 23);
+    checkOutDate.setDate(checkOutDate.getDate() + 180);
 
     const bookingRes = await request(
       'POST',
@@ -148,13 +152,14 @@ const runTests = async () => {
         roomId: createdRoomId,
         checkIn: checkInDate.toISOString().split('T')[0],
         checkOut: checkOutDate.toISOString().split('T')[0],
-        guests: 2,
-        specialRequests: 'Automated test suite reservation.',
-        paymentMethod: 'Demo Automated Test Card',
+        guests: 1,
+        messPlan: 'Standard Veg Mess',
+        specialRequests: 'Automated test suite room allocation.',
+        paymentMethod: 'Demo Student Wallet Pay',
       },
-      guestToken
+      studentToken
     );
-    assert(bookingRes.status === 201 && bookingRes.data.data.bookingReference, 'Guest can create reservation with server-side pricing');
+    assert(bookingRes.status === 201 && bookingRes.data.data.bookingReference, 'Student can apply for room allocation with semester fee & mess');
     const createdBooking = bookingRes.data.data;
 
     // 13. Prevent Overlapping Reservation
@@ -165,40 +170,40 @@ const runTests = async () => {
         roomId: createdRoomId,
         checkIn: checkInDate.toISOString().split('T')[0],
         checkOut: checkOutDate.toISOString().split('T')[0],
-        guests: 2,
+        guests: 1,
       },
-      guestToken
+      studentToken
     );
-    assert(overlapRes.status === 409, 'Overlapping reservation dates are prevented (Status 409 Conflict)');
+    assert(overlapRes.status === 409, 'Overlapping room allocations are prevented (Status 409 Conflict)');
 
-    // 14. Guest view own bookings
-    const myBookings = await request('GET', '/api/bookings/my', null, guestToken);
-    assert(myBookings.status === 200 && myBookings.data.count > 0, 'Guest can view their own booking history');
+    // 14. Student view own allocations
+    const myBookings = await request('GET', '/api/bookings/my', null, studentToken);
+    assert(myBookings.status === 200 && myBookings.data.count > 0, 'Student can view their own hostel allocation history');
 
-    // 15. Guest cancel eligible booking
-    const cancelRes = await request('PATCH', `/api/bookings/${createdBooking._id}/cancel`, null, guestToken);
-    assert(cancelRes.status === 200 && cancelRes.data.data.status === 'cancelled', 'Guest can cancel future booking (Refund processed)');
+    // 15. Student cancel / vacate eligible allocation
+    const cancelRes = await request('PATCH', `/api/bookings/${createdBooking._id}/cancel`, null, studentToken);
+    assert(cancelRes.status === 200 && cancelRes.data.data.status === 'cancelled', 'Student can cancel/vacate room allocation');
 
-    // 16. Guest submit review
+    // 16. Student submit review
     const reviewRes = await request(
       'POST',
       '/api/reviews',
       {
         roomId: firstRoom._id,
         rating: 5,
-        comment: 'Superb hospitality and automated validation excellence.',
+        comment: 'Excellent student accommodation with modern facilities and study tables.',
       },
-      guestToken
+      studentToken
     );
-    assert(reviewRes.status === 201 && reviewRes.data.data.rating === 5, 'Guest can submit room review and star rating');
+    assert(reviewRes.status === 201 && reviewRes.data.data.rating === 5, 'Student can submit hostel room review and rating');
 
-    // 17. Admin delete test room
+    // 17. Warden delete test room
     const deleteRoomRes = await request('DELETE', `/api/rooms/${createdRoomId}`, null, adminToken);
-    assert(deleteRoomRes.status === 200, 'Admin can DELETE room when no active future bookings exist');
+    assert(deleteRoomRes.status === 200, 'Warden can DELETE room when no active allocations exist');
 
-    // 18. Admin analytics
+    // 18. Warden analytics
     const analyticsRes = await request('GET', '/api/admin/analytics', null, adminToken);
-    assert(analyticsRes.status === 200 && analyticsRes.data.data.monthlyRevenue.length === 6, 'Admin can fetch 6-month visual analytics');
+    assert(analyticsRes.status === 200 && analyticsRes.data.data.monthlyRevenue.length === 6, 'Warden can fetch 6-month visual analytics & block distribution');
 
     console.log('\n====================================================');
     console.log(`  TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);

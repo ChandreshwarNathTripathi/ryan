@@ -12,18 +12,18 @@
 ---
 
 ## 1. Description & Objective
-Design and implement a responsive, modern luxury web interface reflecting the XShotel brand aesthetic—dark navy backgrounds, electric violet accents, soft content surfaces, glassmorphic panels, and high-definition hotel imagery.
+Design and implement a responsive, modern web interface reflecting the XSHostel brand aesthetic—dark navy backgrounds, electric violet accents, soft content surfaces, glassmorphic panels, and high-definition campus hostel imagery.
 
 ---
 
 ## 2. Detailed Scope
 - [x] Create the global CSS design tokens in `frontend/src/styles/index.css` (variables, typography, cards, buttons, badges, tables, glass panels).
-- [x] Build luxury `Navbar.jsx` with mobile hamburger drawer and authenticated profile dropdown.
-- [x] Build comprehensive `Footer.jsx` with suite links, private concierge info, and academic project credits.
-- [x] Build `Home.jsx` featuring luxury hero banner, live availability search widget, resort story highlights, signature suites showcase, world-class amenities grid, guest testimonials, and call-to-action banner.
-- [x] Build `Rooms.jsx` catalog with category filter chips, search input, guest capacity filter, price sorting, room cards, and pagination.
-- [x] Build `RoomDetails.jsx` with multi-image gallery, room specifications, full amenities checklist, sticky live reservation calculator, and verified guest feedback list.
-- [x] Build custom luxury `NotFound.jsx` 404 page.
+- [x] Build modern `Navbar.jsx` with mobile hamburger drawer and authenticated profile dropdown.
+- [x] Build comprehensive `Footer.jsx` with hostel block links, warden emergency helpline, and academic project credits.
+- [x] Build `Home.jsx` featuring campus hero banner, live bed availability search widget, hostel story highlights, featured dorms showcase, student amenities grid, resident testimonials, and call-to-action banner.
+- [x] Build `Rooms.jsx` catalog with block & sharing filter chips, search input, bed capacity filter, fee sorting, room cards with bed vacancy badges, and pagination.
+- [x] Build `RoomDetails.jsx` with multi-image gallery, block specifications, full amenities checklist, sticky live allocation calculator with mess plans, and resident student feedback list.
+- [x] Build custom `NotFound.jsx` 404 page.
 
 ---
 

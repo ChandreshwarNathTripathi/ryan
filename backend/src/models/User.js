@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Please provide a full name'],
+      required: [true, 'Please provide full student/staff name'],
       trim: true,
       maxlength: [60, 'Name cannot exceed 60 characters'],
     },
@@ -20,7 +20,34 @@ const userSchema = new mongoose.Schema(
         'Please provide a valid email address',
       ],
     },
+    studentId: {
+      type: String,
+      trim: true,
+      default: function () {
+        return 'STU-' + Math.floor(10000 + Math.random() * 90000);
+      },
+    },
+    course: {
+      type: String,
+      trim: true,
+      default: 'B.Tech Computer Science',
+    },
+    gender: {
+      type: String,
+      enum: ['Male', 'Female', 'Other'],
+      default: 'Male',
+    },
     phone: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    guardianName: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    guardianPhone: {
       type: String,
       trim: true,
       default: '',
@@ -32,8 +59,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
+      enum: ['user', 'student', 'admin', 'warden'],
+      default: 'student',
     },
     status: {
       type: String,
@@ -46,19 +73,16 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Method to verify password against bcrypt hash
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.passwordHash);
 };
 
-// Exclude passwordHash in JSON serialization
 userSchema.methods.toJSON = function () {
   const userObject = this.toObject();
   delete userObject.passwordHash;
   return userObject;
 };
 
-// Static helper to create user with hashed password
 userSchema.statics.hashPassword = async function (plainPassword) {
   const salt = await bcrypt.genSalt(10);
   return await bcrypt.hash(plainPassword, salt);

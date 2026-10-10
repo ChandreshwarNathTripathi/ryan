@@ -12,31 +12,31 @@
 ---
 
 ## 1. Description & Objective
-Build a complete administrative console for hotel staff. Provide real-time operational metrics, interactive Recharts visualizations (revenue trends and room inventory distribution), centralized reservation ledger, guest user directory, review moderation, and property configuration.
+Build a complete administrative console for hostel wardens. Provide real-time operational metrics, interactive Recharts visualizations (fee collections and block room inventory distribution), centralized student allocation ledger, student & staff directory, review moderation, and curfew configuration.
 
 ---
 
 ## 2. Detailed Scope
 - [x] Implement backend aggregation endpoints:
-  - `GET /api/admin/stats` (Total rooms, available rooms, bookings by status, total revenue, active users).
-  - `GET /api/admin/analytics` (6-month revenue trends, category breakdown, recent activity).
-- [x] Build `AdminLayout.jsx` with responsive SaaS sidebar and admin topbar.
-- [x] Build `AdminOverview.jsx` with KPI metric cards, Recharts AreaChart, Recharts BarChart, and recent bookings table with quick status changer.
-- [x] Build `AdminBookings.jsx` ledger with search, filtering by status, voucher inspection modal, and status updater.
-- [x] Build `AdminUsers.jsx` user directory with role selector and account active/deactivate toggle.
+  - `GET /api/admin/stats` (Total dorms, available dorms, allocations by status, total fees, active students).
+  - `GET /api/admin/analytics` (6-month fee collections, category breakdown, recent student allocations).
+- [x] Build `AdminLayout.jsx` with responsive warden sidebar and topbar.
+- [x] Build `AdminOverview.jsx` with KPI metric cards, Recharts AreaChart, Recharts BarChart, and recent allocations table with quick status changer.
+- [x] Build `AdminBookings.jsx` allocation ledger with search, filtering by status, voucher inspection modal, and status updater.
+- [x] Build `AdminUsers.jsx` student directory with roll numbers, courses, guardian contacts, and account toggle.
 - [x] Build `AdminReviews.jsx` moderation table with Approve, Reject, and Delete actions.
-- [x] Build `AdminSettings.jsx` property configuration form.
+- [x] Build `AdminSettings.jsx` hostel curfew and caution deposit configuration form.
 
 ---
 
 ## 3. Acceptance Criteria
 - [x] All statistics are computed directly from MongoDB aggregations.
 - [x] Recharts components render cleanly without crashing or console warnings.
-- [x] Changing a booking status or user role in the dashboard persists to the database.
-- [x] Non-admin users are strictly blocked from `/admin/*`.
-- [x] Admin console is responsive on desktop, tablet, and mobile displays.
+- [x] Changing an allocation status or student role in the dashboard persists to the database.
+- [x] Regular students are strictly blocked from `/admin/*`.
+- [x] Warden console is responsive on desktop, tablet, and mobile displays.
 
 ---
 
 ## 4. Verification Command
-Visit `http://localhost:5173/admin` logged in as `admin@xshotel.com` (`Admin@123`).
+Visit `http://localhost:5173/admin` logged in as `admin@xshostel.com` (`Admin@123`).

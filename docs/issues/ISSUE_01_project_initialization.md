@@ -12,7 +12,7 @@
 ---
 
 ## 1. Description & Objective
-Establish the foundational mono-repository architecture for **XShotel**, initializing both the React + Vite frontend and the Node.js + Express backend with modular folder structures, dependencies, scripts, environment variables templates, and strict `.gitignore` configurations.
+Establish the foundational mono-repository architecture for **XSHostel**, initializing both the React + Vite frontend and the Node.js + Express backend with modular folder structures, dependencies, scripts, environment variables templates, and strict `.gitignore` configurations.
 
 ---
 

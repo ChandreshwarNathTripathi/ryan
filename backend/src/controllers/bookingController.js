@@ -1,7 +1,7 @@
 const Booking = require('../models/Booking');
 const Room = require('../models/Room');
 
-// @desc    Create a new booking with date overlap verification & server-side pricing
+// @desc    Apply for Hostel Room Allocation with date verification & fee computation
 // @route   POST /api/bookings
 // @access  Private
 const createBooking = async (req, res, next) => {
@@ -10,39 +10,41 @@ const createBooking = async (req, res, next) => {
       roomId,
       checkIn,
       checkOut,
-      guests,
+      guests = 1,
       specialRequests,
       paymentMethod,
+      messPlan,
+      academicYear,
+      semester,
     } = req.body;
 
     const room = await Room.findById(roomId);
     if (!room) {
       return res.status(404).json({
         success: false,
-        message: 'The selected room could not be found.',
+        message: 'The selected hostel room could not be found.',
       });
     }
 
     if (room.status === 'maintenance') {
       return res.status(400).json({
         success: false,
-        message: 'This room is currently under maintenance and cannot be reserved.',
+        message: 'This hostel room is currently under maintenance / renovation.',
       });
     }
 
-    // Guest capacity check
+    // Bed capacity check
     if (Number(guests) > room.capacity) {
       return res.status(400).json({
         success: false,
-        message: `This room accommodates a maximum of ${room.capacity} guests. You specified ${guests} guests.`,
+        message: `This hostel room has a maximum capacity of ${room.capacity} beds.`,
       });
     }
 
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
 
-    // Overlapping reservation check
-    // Overlap condition: (existing.checkIn < newCheckOut) AND (existing.checkOut > newCheckIn)
+    // Overlapping room allocation check
     const overlappingBooking = await Booking.findOne({
       room: room._id,
       status: { $in: ['confirmed', 'pending'] },
@@ -55,25 +57,34 @@ const createBooking = async (req, res, next) => {
     if (overlappingBooking) {
       return res.status(409).json({
         success: false,
-        message: 'This room is already reserved for the selected dates. Please select different dates or browse our other luxury suites.',
+        message: 'This hostel room is already allocated for the selected academic session. Please choose another vacant room.',
       });
     }
 
-    // Server-side calculation of nights & total price
+    // Compute semester / stay duration & fee
     const diffTime = Math.abs(checkOutDate - checkInDate);
     const numberOfNights = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
     const roomPrice = numberOfNights * room.pricePerNight;
-    const taxesAndFees = Math.round(roomPrice * 0.12); // 12% Hospitality & Luxury Tax
+    
+    // Mess fee surcharge if mess selected
+    let messSurcharge = 0;
+    if (messPlan && messPlan !== 'Self-Dining / No Mess') {
+      messSurcharge = Math.round(numberOfNights * 15); // $15 / day mess fee
+    }
+    const taxesAndFees = Math.round(roomPrice * 0.05) + messSurcharge; // 5% campus facility fee + mess
     const totalAmount = roomPrice + taxesAndFees;
 
-    // Generate unique human-readable booking reference
+    // Unique hostel allocation reference
     const randomSuffix = Math.floor(100000 + Math.random() * 900000);
-    const bookingReference = `XSH-${new Date().getFullYear()}-${randomSuffix}`;
+    const bookingReference = `HST-${new Date().getFullYear()}-${randomSuffix}`;
 
     const booking = await Booking.create({
       bookingReference,
       user: req.user._id,
       room: room._id,
+      academicYear: academicYear || 'Academic Year 2026-2027',
+      semester: semester || 'Full Academic Session',
+      messPlan: messPlan || 'Standard Veg Mess',
       checkIn: checkInDate,
       checkOut: checkOutDate,
       guests: Number(guests),
@@ -84,16 +95,23 @@ const createBooking = async (req, res, next) => {
       totalAmount,
       status: 'confirmed',
       paymentStatus: 'paid',
-      paymentMethod: paymentMethod || 'Demo Card (Instant Simulation)',
+      paymentMethod: paymentMethod || 'Demo Student Wallet Pay',
     });
+
+    // Update room status
+    room.occupiedBeds = Math.min(room.capacity, (room.occupiedBeds || 0) + Number(guests));
+    if (room.occupiedBeds >= room.capacity) {
+      room.status = 'booked';
+    }
+    await room.save();
 
     const populatedBooking = await Booking.findById(booking._id)
       .populate('room')
-      .populate('user', 'name email phone');
+      .populate('user', 'name email phone studentId course');
 
     res.status(201).json({
       success: true,
-      message: 'Reservation confirmed! Your luxury stay at XShotel is reserved.',
+      message: 'Hostel room allocated successfully! Bed confirmed for academic session.',
       data: populatedBooking,
     });
   } catch (error) {
@@ -101,7 +119,7 @@ const createBooking = async (req, res, next) => {
   }
 };
 
-// @desc    Get bookings of the logged-in user
+// @desc    Get allocations of the logged-in student
 // @route   GET /api/bookings/my
 // @access  Private
 const getMyBookings = async (req, res, next) => {
@@ -120,30 +138,30 @@ const getMyBookings = async (req, res, next) => {
   }
 };
 
-// @desc    Get booking details by ID (Ownership check)
+// @desc    Get allocation details by ID (Ownership check)
 // @route   GET /api/bookings/:id
 // @access  Private
 const getBookingById = async (req, res, next) => {
   try {
     const booking = await Booking.findById(req.params.id)
       .populate('room')
-      .populate('user', 'name email phone');
+      .populate('user', 'name email phone studentId course guardianName guardianPhone');
 
     if (!booking) {
       return res.status(404).json({
         success: false,
-        message: 'Booking not found.',
+        message: 'Hostel allocation record not found.',
       });
     }
 
     // Ownership check: must be owner or admin
     if (
       booking.user._id.toString() !== req.user._id.toString() &&
-      req.user.role !== 'admin'
+      req.user.role !== 'admin' && req.user.role !== 'warden'
     ) {
       return res.status(403).json({
         success: false,
-        message: 'Unauthorized. You do not have permission to view this reservation.',
+        message: 'Unauthorized. You do not have permission to view this allocation.',
       });
     }
 
@@ -156,7 +174,7 @@ const getBookingById = async (req, res, next) => {
   }
 };
 
-// @desc    Cancel an eligible booking
+// @desc    Vacate or cancel room allocation
 // @route   PATCH /api/bookings/:id/cancel
 // @access  Private
 const cancelBooking = async (req, res, next) => {
@@ -165,48 +183,44 @@ const cancelBooking = async (req, res, next) => {
     if (!booking) {
       return res.status(404).json({
         success: false,
-        message: 'Booking not found.',
+        message: 'Allocation record not found.',
       });
     }
 
-    // Ownership verification
     if (
       booking.user.toString() !== req.user._id.toString() &&
-      req.user.role !== 'admin'
+      req.user.role !== 'admin' && req.user.role !== 'warden'
     ) {
       return res.status(403).json({
         success: false,
-        message: 'Unauthorized. You cannot cancel another guest’s reservation.',
+        message: 'Unauthorized. You cannot cancel another student’s room allocation.',
       });
     }
 
-    if (booking.status === 'cancelled') {
+    if (booking.status === 'cancelled' || booking.status === 'vacated') {
       return res.status(400).json({
         success: false,
-        message: 'This booking has already been cancelled.',
+        message: 'This hostel allocation is already cancelled or vacated.',
       });
-    }
-
-    // Check cancellation eligibility: check-in must be in future (for guests)
-    if (req.user.role !== 'admin') {
-      const today = new Date();
-      if (new Date(booking.checkIn) <= today) {
-        return res.status(400).json({
-          success: false,
-          message: 'Reservations cannot be cancelled on or after the scheduled check-in date. Please contact reception.',
-        });
-      }
     }
 
     booking.status = 'cancelled';
     booking.paymentStatus = 'refunded';
     await booking.save();
 
+    // Free up room occupied beds
+    const room = await Room.findById(booking.room);
+    if (room) {
+      room.occupiedBeds = Math.max(0, (room.occupiedBeds || 0) - (booking.guests || 1));
+      room.status = 'available';
+      await room.save();
+    }
+
     const updated = await Booking.findById(booking._id).populate('room');
 
     res.status(200).json({
       success: true,
-      message: 'Booking cancelled successfully. Demo refund has been initiated.',
+      message: 'Room allocation cancelled / vacated successfully. Caution deposit marked for refund.',
       data: updated,
     });
   } catch (error) {
@@ -214,7 +228,7 @@ const cancelBooking = async (req, res, next) => {
   }
 };
 
-// @desc    Get all bookings (Admin only)
+// @desc    Get all hostel allocations (Warden/Admin)
 // @route   GET /api/bookings
 // @access  Private/Admin
 const getAllBookings = async (req, res, next) => {
@@ -236,8 +250,8 @@ const getAllBookings = async (req, res, next) => {
 
     const total = await Booking.countDocuments(query);
     const bookings = await Booking.find(query)
-      .populate('user', 'name email phone')
-      .populate('room', 'name roomNumber category pricePerNight images')
+      .populate('user', 'name email phone studentId course')
+      .populate('room', 'name roomNumber block category pricePerNight images')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum);
@@ -255,7 +269,7 @@ const getAllBookings = async (req, res, next) => {
   }
 };
 
-// @desc    Update booking status (Admin only)
+// @desc    Update hostel allocation status (Warden/Admin)
 // @route   PATCH /api/bookings/:id/status
 // @access  Private/Admin
 const updateBookingStatus = async (req, res, next) => {
@@ -266,7 +280,7 @@ const updateBookingStatus = async (req, res, next) => {
     if (!booking) {
       return res.status(404).json({
         success: false,
-        message: 'Booking not found.',
+        message: 'Allocation record not found.',
       });
     }
 
@@ -276,12 +290,12 @@ const updateBookingStatus = async (req, res, next) => {
     await booking.save();
 
     const updated = await Booking.findById(booking._id)
-      .populate('user', 'name email')
-      .populate('room', 'name roomNumber');
+      .populate('user', 'name email studentId')
+      .populate('room', 'name roomNumber block');
 
     res.status(200).json({
       success: true,
-      message: 'Booking status updated successfully.',
+      message: 'Allocation status updated successfully.',
       data: updated,
     });
   } catch (error) {

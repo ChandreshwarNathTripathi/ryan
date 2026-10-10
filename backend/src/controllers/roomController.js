@@ -2,7 +2,7 @@ const Room = require('../models/Room');
 const Review = require('../models/Review');
 const Booking = require('../models/Booking');
 
-// @desc    Get all rooms with filtering, search, sorting & pagination
+// @desc    Get all hostel rooms with block filtering, search, sorting & pagination
 // @route   GET /api/rooms
 // @access  Public
 const getRooms = async (req, res, next) => {
@@ -10,6 +10,8 @@ const getRooms = async (req, res, next) => {
     const {
       search,
       category,
+      block,
+      gender,
       status,
       minPrice,
       maxPrice,
@@ -22,12 +24,22 @@ const getRooms = async (req, res, next) => {
 
     const query = {};
 
-    // Filter by category
+    // Filter by category / occupancy
     if (category && category !== 'All') {
       query.category = category;
     }
 
-    // Filter by status (public defaults to available unless admin specifies)
+    // Filter by block
+    if (block && block !== 'All') {
+      query.block = block;
+    }
+
+    // Filter by gender wing
+    if (gender && gender !== 'All') {
+      query.gender = gender;
+    }
+
+    // Filter by status
     if (status && status !== 'All') {
       query.status = status;
     }
@@ -37,25 +49,26 @@ const getRooms = async (req, res, next) => {
       query.featured = true;
     }
 
-    // Filter by capacity
+    // Filter by bed capacity
     if (capacity) {
       query.capacity = { $gte: Number(capacity) };
     }
 
-    // Filter by price range
+    // Filter by fee range
     if (minPrice || maxPrice) {
       query.pricePerNight = {};
       if (minPrice) query.pricePerNight.$gte = Number(minPrice);
       if (maxPrice) query.pricePerNight.$lte = Number(maxPrice);
     }
 
-    // Search by name or description
+    // Search by name, block, or room number
     if (search && search.trim() !== '') {
       const searchRegex = new RegExp(search.trim(), 'i');
       query.$or = [
         { name: searchRegex },
         { description: searchRegex },
         { roomNumber: searchRegex },
+        { block: searchRegex },
       ];
     }
 
@@ -98,13 +111,13 @@ const getRoomById = async (req, res, next) => {
     if (!room) {
       return res.status(404).json({
         success: false,
-        message: 'The requested room could not be found.',
+        message: 'The requested hostel room could not be found.',
       });
     }
 
-    // Fetch approved reviews for this room
+    // Fetch reviews for this room
     const reviews = await Review.find({ room: room._id, status: 'approved' })
-      .populate('user', 'name')
+      .populate('user', 'name studentId')
       .sort({ createdAt: -1 })
       .limit(20);
 
@@ -128,7 +141,7 @@ const getRoomById = async (req, res, next) => {
   }
 };
 
-// @desc    Create a new room
+// @desc    Create a new hostel room
 // @route   POST /api/rooms
 // @access  Private/Admin
 const createRoom = async (req, res, next) => {
@@ -136,7 +149,10 @@ const createRoom = async (req, res, next) => {
     const {
       name,
       roomNumber,
+      block,
       category,
+      gender,
+      floor,
       description,
       pricePerNight,
       capacity,
@@ -146,27 +162,29 @@ const createRoom = async (req, res, next) => {
       featured,
     } = req.body;
 
-    // Check duplicate room number
     const existing = await Room.findOne({
       roomNumber: roomNumber.toUpperCase().trim(),
     });
     if (existing) {
       return res.status(400).json({
         success: false,
-        message: `Room number ${roomNumber} already exists. Please choose a unique room number.`,
+        message: `Hostel room number ${roomNumber} already exists. Please assign a unique number.`,
       });
     }
 
     const room = await Room.create({
       name: name.trim(),
       roomNumber: roomNumber.toUpperCase().trim(),
-      category: category || 'Deluxe',
+      block: block || 'Block A (Boys)',
+      category: category || 'Double Sharing',
+      gender: gender || 'Boys',
+      floor: Number(floor) || 1,
       description,
       pricePerNight: Number(pricePerNight),
-      capacity: Number(capacity),
-      amenities: amenities || ['High-speed Wi-Fi', 'King Bed', 'Room Service'],
+      capacity: Number(capacity) || 2,
+      amenities: amenities || ['Study Desk', 'Wardrobe', 'Campus Wi-Fi', 'Mess Access'],
       images: Array.isArray(images) && images.length > 0 ? images : [
-        'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=1200&q=80',
       ],
       status: status || 'available',
       featured: Boolean(featured),
@@ -174,7 +192,7 @@ const createRoom = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: 'Room created successfully.',
+      message: 'Hostel room created successfully.',
       data: room,
     });
   } catch (error) {
@@ -182,7 +200,7 @@ const createRoom = async (req, res, next) => {
   }
 };
 
-// @desc    Update a room
+// @desc    Update a hostel room
 // @route   PUT /api/rooms/:id
 // @access  Private/Admin
 const updateRoom = async (req, res, next) => {
@@ -191,14 +209,17 @@ const updateRoom = async (req, res, next) => {
     if (!room) {
       return res.status(404).json({
         success: false,
-        message: 'Room not found.',
+        message: 'Hostel room not found.',
       });
     }
 
     const {
       name,
       roomNumber,
+      block,
       category,
+      gender,
+      floor,
       description,
       pricePerNight,
       capacity,
@@ -215,14 +236,17 @@ const updateRoom = async (req, res, next) => {
       if (conflict) {
         return res.status(400).json({
           success: false,
-          message: `Room number ${roomNumber} is already taken.`,
+          message: `Hostel room number ${roomNumber} is already registered.`,
         });
       }
       room.roomNumber = roomNumber.toUpperCase().trim();
     }
 
     if (name) room.name = name.trim();
+    if (block) room.block = block;
     if (category) room.category = category;
+    if (gender) room.gender = gender;
+    if (floor !== undefined) room.floor = Number(floor);
     if (description) room.description = description;
     if (pricePerNight !== undefined) room.pricePerNight = Number(pricePerNight);
     if (capacity !== undefined) room.capacity = Number(capacity);
@@ -235,7 +259,7 @@ const updateRoom = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Room updated successfully.',
+      message: 'Hostel room updated successfully.',
       data: updatedRoom,
     });
   } catch (error) {
@@ -243,7 +267,7 @@ const updateRoom = async (req, res, next) => {
   }
 };
 
-// @desc    Delete a room
+// @desc    Delete a hostel room
 // @route   DELETE /api/rooms/:id
 // @access  Private/Admin
 const deleteRoom = async (req, res, next) => {
@@ -252,11 +276,10 @@ const deleteRoom = async (req, res, next) => {
     if (!room) {
       return res.status(404).json({
         success: false,
-        message: 'Room not found.',
+        message: 'Hostel room not found.',
       });
     }
 
-    // Check if room has active bookings scheduled in the future
     const activeBooking = await Booking.findOne({
       room: room._id,
       status: { $in: ['confirmed', 'pending'] },
@@ -266,7 +289,7 @@ const deleteRoom = async (req, res, next) => {
     if (activeBooking) {
       return res.status(400).json({
         success: false,
-        message: 'Cannot delete room with active upcoming reservations. Cancel or complete bookings first.',
+        message: 'Cannot delete hostel room with active resident allocations.',
       });
     }
 
@@ -274,7 +297,7 @@ const deleteRoom = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: `Room ${room.roomNumber} has been permanently deleted.`,
+      message: `Hostel room ${room.roomNumber} has been removed.`,
     });
   } catch (error) {
     next(error);

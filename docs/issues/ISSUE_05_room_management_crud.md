@@ -12,7 +12,7 @@
 ---
 
 ## 1. Description & Objective
-Build complete CRUD capabilities for hotel rooms and luxury suites. Administrators can create, review, edit, and delete rooms with full validation and duplicate checks; non-admin users have read-only access.
+Build complete CRUD capabilities for hostel dorm rooms and sharing suites. Chief Wardens can create, review, edit, and delete dorms with block assignments, gender wings, bed capacities, and duplicate checks; students have read-only catalog access.
 
 ---
 

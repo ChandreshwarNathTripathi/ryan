@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Crown, Mail, Lock, User, Phone, AlertCircle, ArrowRight } from 'lucide-react';
+import { Building2, Mail, Lock, User, Phone, BookOpen, AlertCircle, ArrowRight } from 'lucide-react';
 
 const Register = () => {
   const { register } = useAuth();
@@ -10,6 +10,8 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [course, setCourse] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,6 +38,8 @@ const Register = () => {
         name: name.trim(),
         email: email.trim(),
         phone: phone.trim(),
+        studentId: studentId.trim(),
+        course: course.trim(),
         password,
       });
       navigate('/', { replace: true });
@@ -55,7 +59,7 @@ const Register = () => {
       padding: '40px 20px',
     }}>
       <div className="card" style={{
-        maxWidth: '500px',
+        maxWidth: '520px',
         width: '100%',
         padding: '40px 32px',
         boxShadow: 'var(--shadow-lg), 0 0 40px rgba(139, 92, 246, 0.15)',
@@ -74,11 +78,11 @@ const Register = () => {
             margin: '0 auto 16px auto',
             boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
           }}>
-            <Crown size={26} color="#FFFFFF" />
+            <Building2 size={26} color="#FFFFFF" />
           </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Join XShotel Privileges</h1>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Join XSHostel Residences</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '6px' }}>
-            Register your guest account to unlock seamless bookings and personalized service.
+            Register your student account to apply for room allotment, select mess plans, and access campus amenities.
           </p>
         </div>
 
@@ -103,12 +107,12 @@ const Register = () => {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <User size={14} color="#8B5CF6" /> Full Name
+              <User size={14} color="#8B5CF6" /> Student Full Name
             </label>
             <input
               type="text"
               className="form-input"
-              placeholder="e.g. Lady Vivienne Montgomery"
+              placeholder="e.g. Alex Morgan"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -117,28 +121,56 @@ const Register = () => {
 
           <div className="form-group">
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Mail size={14} color="#8B5CF6" /> Email Address
+              <Mail size={14} color="#8B5CF6" /> University Email Address
             </label>
             <input
               type="email"
               className="form-input"
-              placeholder="e.g. vivienne@example.com"
+              placeholder="e.g. alex@university.edu"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className="form-group">
+              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <BookOpen size={14} color="#8B5CF6" /> Student Roll / ID
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="e.g. STU-2026-092"
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Phone size={14} color="#8B5CF6" /> Student Mobile
+              </label>
+              <input
+                type="tel"
+                className="form-input"
+                placeholder="e.g. +1 (555) 018-9922"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+          </div>
+
           <div className="form-group">
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Phone size={14} color="#8B5CF6" /> Contact Telephone
+              <BookOpen size={14} color="#8B5CF6" /> Degree Program / Department
             </label>
             <input
-              type="tel"
+              type="text"
               className="form-input"
-              placeholder="e.g. +1 (555) 432-1098"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              placeholder="e.g. B.Tech Computer Science"
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
             />
           </div>
 
@@ -180,7 +212,7 @@ const Register = () => {
               <div className="spinner" style={{ width: '20px', height: '20px' }} />
             ) : (
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                Complete Registration <ArrowRight size={16} />
+                Complete Student Registration <ArrowRight size={16} />
               </span>
             )}
           </button>
@@ -194,7 +226,7 @@ const Register = () => {
           borderTop: '1px solid var(--border-subtle)',
           paddingTop: '20px',
         }}>
-          Already an XShotel member?{' '}
+          Already an XSHostel resident?{' '}
           <Link to="/login" style={{ color: '#8B5CF6', fontWeight: 600 }}>
             Sign In Here
           </Link>

@@ -1,12 +1,12 @@
 const User = require('../models/User');
 const Booking = require('../models/Booking');
 
-// @desc    Get all users with booking statistics (Admin only)
+// @desc    Get all students & staff (Warden/Admin)
 // @route   GET /api/users
 // @access  Private/Admin
 const getUsers = async (req, res, next) => {
   try {
-    const { search, role, status, page = 1, limit = 15 } = req.query;
+    const { search, role, status, page = 1, limit = 20 } = req.query;
     const query = {};
 
     if (role && role !== 'All') query.role = role;
@@ -14,7 +14,13 @@ const getUsers = async (req, res, next) => {
 
     if (search && search.trim() !== '') {
       const regex = new RegExp(search.trim(), 'i');
-      query.$or = [{ name: regex }, { email: regex }, { phone: regex }];
+      query.$or = [
+        { name: regex },
+        { email: regex },
+        { phone: regex },
+        { studentId: regex },
+        { course: regex },
+      ];
     }
 
     const pageNum = parseInt(page, 10);
@@ -28,13 +34,18 @@ const getUsers = async (req, res, next) => {
       .skip(skip)
       .limit(limitNum);
 
-    // Attach booking counts
     const usersWithStats = await Promise.all(
       users.map(async (u) => {
         const bookingCount = await Booking.countDocuments({ user: u._id });
+        const activeAllocation = await Booking.findOne({
+          user: u._id,
+          status: 'confirmed',
+        }).populate('room', 'roomNumber block');
+
         return {
           ...u.toObject(),
           bookingCount,
+          activeRoom: activeAllocation ? `${activeAllocation.room?.block} - #${activeAllocation.room?.roomNumber}` : 'Unallocated',
         };
       })
     );
@@ -54,13 +65,17 @@ const getUsers = async (req, res, next) => {
 
 // @desc    Get user by ID
 // @route   GET /api/users/:id
-// @access  Private (Admin or Self)
+// @access  Private (Admin, Warden, or Self)
 const getUserById = async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin' && req.user._id.toString() !== req.params.id) {
+    if (
+      req.user.role !== 'admin' &&
+      req.user.role !== 'warden' &&
+      req.user._id.toString() !== req.params.id
+    ) {
       return res.status(403).json({
         success: false,
-        message: 'Unauthorized. You can only view your own user account.',
+        message: 'Unauthorized. You can only view your own student profile.',
       });
     }
 
@@ -68,7 +83,7 @@ const getUserById = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found.',
+        message: 'Student account not found.',
       });
     }
 
@@ -86,7 +101,7 @@ const getUserById = async (req, res, next) => {
   }
 };
 
-// @desc    Update user status / role (Admin only)
+// @desc    Update user status / role (Warden/Admin)
 // @route   PATCH /api/users/:id
 // @access  Private/Admin
 const updateUser = async (req, res, next) => {
@@ -95,39 +110,36 @@ const updateUser = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found.',
+        message: 'Student record not found.',
       });
     }
 
-    const { role, status, name, phone } = req.body;
+    const { role, status, name, phone, course, studentId, guardianName, guardianPhone } = req.body;
 
-    // Self-lockout prevention
     if (
       user._id.toString() === req.user._id.toString() &&
       status === 'inactive'
     ) {
       return res.status(400).json({
         success: false,
-        message: 'You cannot deactivate your own active admin account.',
+        message: 'You cannot deactivate your own active warden/admin account.',
       });
     }
 
-    if (role && ['user', 'admin'].includes(role)) {
-      user.role = role;
-    }
-
-    if (status && ['active', 'inactive'].includes(status)) {
-      user.status = status;
-    }
-
+    if (role) user.role = role;
+    if (status) user.status = status;
     if (name) user.name = name.trim();
     if (phone !== undefined) user.phone = phone.trim();
+    if (course) user.course = course.trim();
+    if (studentId) user.studentId = studentId.trim();
+    if (guardianName !== undefined) user.guardianName = guardianName.trim();
+    if (guardianPhone !== undefined) user.guardianPhone = guardianPhone.trim();
 
     await user.save();
 
     res.status(200).json({
       success: true,
-      message: 'User updated successfully.',
+      message: 'Student/Staff record updated successfully.',
       data: user,
     });
   } catch (error) {

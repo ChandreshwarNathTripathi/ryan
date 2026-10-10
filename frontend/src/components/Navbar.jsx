@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Crown,
+  Building2,
   Calendar,
   User,
   Shield,
@@ -28,9 +28,8 @@ const Navbar = () => {
 
   const navLinks = [
     { label: 'Home', path: '/' },
-    { label: 'Suites & Rooms', path: '/rooms' },
-    { label: 'Experiences', path: '/#experiences' },
-    { label: 'Amenities', path: '/#amenities' },
+    { label: 'Hostel Rooms & Dorms', path: '/rooms' },
+    { label: 'Campus Amenities', path: '/#amenities' },
   ];
 
   const isActive = (path) => {
@@ -43,7 +42,7 @@ const Navbar = () => {
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      background: 'rgba(9, 13, 22, 0.92)',
+      background: 'rgba(9, 13, 22, 0.94)',
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
       borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
@@ -66,7 +65,7 @@ const Navbar = () => {
             justifyContent: 'center',
             boxShadow: '0 4px 16px rgba(139, 92, 246, 0.4)',
           }}>
-            <Crown size={22} color="#FFFFFF" />
+            <Building2 size={24} color="#FFFFFF" />
           </div>
           <div>
             <div style={{
@@ -80,7 +79,7 @@ const Navbar = () => {
               gap: '4px',
             }}>
               <span>XSH</span>
-              <span style={{ color: '#8B5CF6' }}>OTEL</span>
+              <span style={{ color: '#8B5CF6' }}>OSTEL</span>
             </div>
             <div style={{
               fontSize: '0.65rem',
@@ -89,7 +88,7 @@ const Navbar = () => {
               color: 'var(--text-secondary)',
               fontWeight: 600,
             }}>
-              Luxury Stays & Villas
+              Campus Living & Residences
             </div>
           </div>
         </Link>
@@ -154,17 +153,15 @@ const Navbar = () => {
                   fontWeight: 700,
                   fontSize: '0.85rem',
                 }}>
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'S'}
                 </div>
                 <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>
                     {user?.name?.split(' ')[0]}
                   </div>
-                  {isAdmin && (
-                    <span style={{ fontSize: '0.65rem', color: '#C4B5FD', fontWeight: 600 }}>
-                      Admin
-                    </span>
-                  )}
+                  <span style={{ fontSize: '0.65rem', color: isAdmin ? '#C4B5FD' : '#34D399', fontWeight: 600 }}>
+                    {isAdmin ? 'Chief Warden' : 'Resident Student'}
+                  </span>
                 </div>
                 <ChevronDown size={14} color="var(--text-secondary)" />
               </button>
@@ -207,7 +204,7 @@ const Navbar = () => {
                           fontWeight: 600,
                         }}
                       >
-                        <Shield size={16} /> Admin Dashboard
+                        <Shield size={16} /> Warden Dashboard
                       </Link>
                     )}
                     <Link
@@ -223,7 +220,7 @@ const Navbar = () => {
                         color: 'var(--text-secondary)',
                       }}
                     >
-                      <Calendar size={16} /> My Reservations
+                      <Calendar size={16} /> My Hostel Room
                     </Link>
                     <Link
                       to="/profile"
@@ -238,7 +235,7 @@ const Navbar = () => {
                         color: 'var(--text-secondary)',
                       }}
                     >
-                      <User size={16} /> Guest Profile
+                      <User size={16} /> Student Profile
                     </Link>
                   </div>
 
@@ -269,10 +266,10 @@ const Navbar = () => {
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <Link to="/login" className="btn btn-secondary btn-sm">
-                Sign In
+                Student Sign In
               </Link>
               <Link to="/rooms" className="btn btn-primary btn-sm">
-                <Sparkles size={14} /> Book Now
+                <Sparkles size={14} /> Apply for Room
               </Link>
             </div>
           )}
@@ -330,21 +327,20 @@ const Navbar = () => {
                 className="btn btn-secondary"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Sign In
+                Student Sign In
               </Link>
               <Link
                 to="/register"
                 className="btn btn-primary"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Create Account
+                Register Account
               </Link>
             </div>
           )}
         </div>
       )}
 
-      {/* Inline styles for desktop/mobile responsive navigation */}
       <style>{`
         @media (min-width: 768px) {
           .desktop-nav { display: flex !important; }

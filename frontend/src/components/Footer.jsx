@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Crown, Mail, Phone, MapPin, Compass, ShieldCheck } from 'lucide-react';
+import { Building2, Mail, Phone, MapPin, ShieldCheck, Clock } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -30,7 +30,7 @@ const Footer = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-                <Crown size={20} color="#FFFFFF" />
+                <Building2 size={20} color="#FFFFFF" />
               </div>
               <span style={{
                 fontFamily: 'var(--font-heading)',
@@ -38,7 +38,7 @@ const Footer = () => {
                 fontWeight: 800,
                 color: '#FFFFFF',
               }}>
-                XSH<span style={{ color: '#8B5CF6' }}>OTEL</span>
+                XSH<span style={{ color: '#8B5CF6' }}>OSTEL</span>
               </span>
             </div>
             <p style={{
@@ -47,15 +47,14 @@ const Footer = () => {
               lineHeight: 1.6,
               marginBottom: '20px',
             }}>
-              Where architectural grandeur converges with uncompromising hospitality.
-              Indulge in bespoke luxury, world-renowned culinary excellence, and rejuvenating oceanfront tranquility.
+              Premier campus student residences. Combining dedicated study stations, 1Gbps high-speed Wi-Fi, hygienic dining mess facilities, and 24/7 biometric safety for collegiate excellence.
             </p>
             <div style={{ display: 'flex', gap: '8px' }}>
               <span className="badge badge-gold">
-                <Crown size={12} /> 5-Star Luxury Certified
+                <ShieldCheck size={12} /> Campus Certified
               </span>
               <span className="badge badge-primary">
-                <ShieldCheck size={12} /> Secure Booking
+                <Clock size={12} /> 24/7 Warden Security
               </span>
             </div>
           </div>
@@ -63,45 +62,45 @@ const Footer = () => {
           {/* Quick Links */}
           <div>
             <h4 style={{ fontSize: '1rem', color: '#FFFFFF', marginBottom: '18px', fontWeight: 600 }}>
-              Discover Suites
+              Hostel Blocks & Wings
             </h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <li><Link to="/rooms?category=Presidential%20Suite" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Presidential Penthouse</Link></li>
-              <li><Link to="/rooms?category=Ocean%20Villa" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Oceanfront Infinity Villas</Link></li>
-              <li><Link to="/rooms?category=Executive%20Suite" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Executive Horizon Suites</Link></li>
-              <li><Link to="/rooms?category=Deluxe" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Opulent Deluxe King</Link></li>
-              <li><Link to="/rooms?category=Family%20Suite" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Prestige Family Residences</Link></li>
+              <li><Link to="/rooms?block=Block%20A%20(Boys)" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Block A (Boys Residence)</Link></li>
+              <li><Link to="/rooms?block=Block%20B%20(Girls)" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Block B (Girls Residence)</Link></li>
+              <li><Link to="/rooms?block=Block%20C%20(Scholars%20Wing)" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Block C (Scholars & PG Wing)</Link></li>
+              <li><Link to="/rooms?category=Single%20Room" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Single Scholar Rooms</Link></li>
+              <li><Link to="/rooms?category=Double%20Sharing" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Double Sharing Study Dorms</Link></li>
             </ul>
           </div>
 
-          {/* Concierge & Contact */}
+          {/* Warden Office Contact */}
           <div>
             <h4 style={{ fontSize: '1rem', color: '#FFFFFF', marginBottom: '18px', fontWeight: 600 }}>
-              Private Concierge
+              Warden & Support Office
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <MapPin size={18} color="#8B5CF6" style={{ flexShrink: 0, marginTop: '2px' }} />
-                <span>100 Azure Bay Promenade, Grand Marina Peninsula</span>
+                <span>Hostel Administration Building, Central Campus Quad</span>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <Phone size={18} color="#8B5CF6" style={{ flexShrink: 0 }} />
-                <span>+1 (800) 874-9000 (24/7 Butler Service)</span>
+                <span>+1 (800) 467-8350 (24/7 Warden Helpline)</span>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <Mail size={18} color="#8B5CF6" style={{ flexShrink: 0 }} />
-                <span>reservations@xshotel.com</span>
+                <span>warden@xshostel.com</span>
               </div>
             </div>
           </div>
 
-          {/* College Project Credit */}
+          {/* Academic Capstone Project */}
           <div>
             <h4 style={{ fontSize: '1rem', color: '#FFFFFF', marginBottom: '18px', fontWeight: 600 }}>
-              Academic Project Info
+              College Capstone System
             </h4>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '12px' }}>
-              Developed as a collegiate full-stack engineering capstone by <strong>Syed Rayyan (Team Leader)</strong> and four-member team.
+              Full-Stack Hostel Management System designed and delivered by <strong>Syed Rayyan (Team Leader)</strong> and four-member team.
             </p>
             <div style={{
               background: 'rgba(255, 255, 255, 0.03)',
@@ -112,8 +111,8 @@ const Footer = () => {
               color: 'var(--text-secondary)'
             }}>
               <div>Stack: <strong>React, Node, Express, MongoDB</strong></div>
-              <div>Issue Tracking: <strong>10 GitHub Issues</strong></div>
-              <div style={{ color: '#C4B5FD', marginTop: '4px' }}>Demo System Ready for Deployment</div>
+              <div>Modules: <strong>Room CRUD, Allocations, Mess, RBAC</strong></div>
+              <div style={{ color: '#C4B5FD', marginTop: '4px' }}>Demo System Ready for College Submission</div>
             </div>
           </div>
         </div>
@@ -130,12 +129,12 @@ const Footer = () => {
           color: 'var(--text-muted)',
         }}>
           <div>
-            © {new Date().getFullYear()} XShotel Luxury Hospitality Inc. All rights reserved.
+            © {new Date().getFullYear()} XSHostel Campus Living Systems. All rights reserved.
           </div>
           <div style={{ display: 'flex', gap: '20px' }}>
-            <span>Privacy Policy</span>
-            <span>Terms of Service</span>
-            <span>Guest Charter</span>
+            <span>Hostel Rules & Curfew</span>
+            <span>Mess Menu Charter</span>
+            <span>Anti-Ragging Policy</span>
           </div>
         </div>
       </div>

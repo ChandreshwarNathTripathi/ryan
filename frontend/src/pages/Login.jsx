@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Crown, Mail, Lock, Eye, EyeOff, AlertCircle, ArrowRight, Shield, User } from 'lucide-react';
+import { Building2, Mail, Lock, Eye, EyeOff, AlertCircle, ArrowRight, Shield, User } from 'lucide-react';
 
 const Login = () => {
   const { login } = useAuth();
@@ -31,15 +31,15 @@ const Login = () => {
     }
   };
 
-  const autofillAdmin = () => {
-    setEmail('admin@xshotel.com');
+  const autofillWarden = () => {
+    setEmail('admin@xshostel.com');
     setPassword('Admin@123');
     setError(null);
   };
 
-  const autofillGuest = () => {
-    setEmail('guest@xshotel.com');
-    setPassword('Guest@123');
+  const autofillStudent = () => {
+    setEmail('student@xshostel.com');
+    setPassword('Student@123');
     setError(null);
   };
 
@@ -71,11 +71,11 @@ const Login = () => {
             margin: '0 auto 16px auto',
             boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
           }}>
-            <Crown size={26} color="#FFFFFF" />
+            <Building2 size={26} color="#FFFFFF" />
           </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Welcome to XShotel</h1>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Welcome to XSHostel</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '6px' }}>
-            Sign in to manage your bookings and experience bespoke hospitality.
+            Sign in to manage your room allocation, mess subscription, and residential life.
           </p>
         </div>
 
@@ -93,19 +93,19 @@ const Login = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <button
               type="button"
-              onClick={autofillAdmin}
+              onClick={autofillWarden}
               className="btn btn-secondary btn-sm"
               style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              <Shield size={14} color="#8B5CF6" /> Fill Admin
+              <Shield size={14} color="#8B5CF6" /> Chief Warden
             </button>
             <button
               type="button"
-              onClick={autofillGuest}
+              onClick={autofillStudent}
               className="btn btn-secondary btn-sm"
               style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              <User size={14} color="#10B981" /> Fill Guest
+              <User size={14} color="#10B981" /> Student Demo
             </button>
           </div>
         </div>
@@ -136,7 +136,7 @@ const Login = () => {
             <input
               type="email"
               className="form-input"
-              placeholder="e.g. guest@xshotel.com"
+              placeholder="e.g. student@xshostel.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -185,7 +185,7 @@ const Login = () => {
               <div className="spinner" style={{ width: '20px', height: '20px' }} />
             ) : (
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                Sign In to Account <ArrowRight size={16} />
+                Sign In to Hostel Portal <ArrowRight size={16} />
               </span>
             )}
           </button>
@@ -199,9 +199,9 @@ const Login = () => {
           borderTop: '1px solid var(--border-subtle)',
           paddingTop: '20px',
         }}>
-          New to XShotel?{' '}
+          New resident student?{' '}
           <Link to="/register" style={{ color: '#8B5CF6', fontWeight: 600 }}>
-            Create Guest Account
+            Create Student Account
           </Link>
         </div>
       </div>

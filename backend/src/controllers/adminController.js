@@ -3,7 +3,7 @@ const Booking = require('../models/Booking');
 const User = require('../models/User');
 const Review = require('../models/Review');
 
-// @desc    Get dashboard metrics & summary counts
+// @desc    Get hostel management metrics & summary counts
 // @route   GET /api/admin/stats
 // @access  Private/Admin
 const getStats = async (req, res, next) => {
@@ -12,22 +12,36 @@ const getStats = async (req, res, next) => {
     const availableRooms = await Room.countDocuments({ status: 'available' });
     const maintenanceRooms = await Room.countDocuments({ status: 'maintenance' });
 
+    // Bed capacity calculations
+    const bedsAggregation = await Room.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalBeds: { $sum: '$capacity' },
+          occupiedBeds: { $sum: '$occupiedBeds' },
+        },
+      },
+    ]);
+    const totalBeds = bedsAggregation.length > 0 ? bedsAggregation[0].totalBeds : 0;
+    const occupiedBeds = bedsAggregation.length > 0 ? bedsAggregation[0].occupiedBeds : 0;
+    const availableBeds = Math.max(0, totalBeds - occupiedBeds);
+
     const totalBookings = await Booking.countDocuments();
     const pendingBookings = await Booking.countDocuments({ status: 'pending' });
     const confirmedBookings = await Booking.countDocuments({ status: 'confirmed' });
     const cancelledBookings = await Booking.countDocuments({ status: 'cancelled' });
     const completedBookings = await Booking.countDocuments({ status: 'completed' });
 
-    const totalUsers = await User.countDocuments({ role: 'user' });
+    const totalStudents = await User.countDocuments({ role: { $in: ['user', 'student'] } });
 
-    // Calculate total revenue from paid bookings
+    // Total Hostel Fees collected
     const revenueAggregation = await Booking.aggregate([
       { $match: { paymentStatus: 'paid', status: { $ne: 'cancelled' } } },
       { $group: { _id: null, total: { $sum: '$totalAmount' } } },
     ]);
     const totalRevenue = revenueAggregation.length > 0 ? revenueAggregation[0].total : 0;
 
-    // Calculate average review rating
+    // Average rating
     const ratingAggregation = await Review.aggregate([
       { $match: { status: 'approved' } },
       { $group: { _id: null, avg: { $avg: '$rating' }, count: { $sum: 1 } } },
@@ -45,7 +59,9 @@ const getStats = async (req, res, next) => {
           total: totalRooms,
           available: availableRooms,
           maintenance: maintenanceRooms,
-          booked: totalRooms - availableRooms - maintenanceRooms,
+          totalBeds,
+          occupiedBeds,
+          availableBeds,
         },
         bookings: {
           total: totalBookings,
@@ -55,7 +71,7 @@ const getStats = async (req, res, next) => {
           completed: completedBookings,
         },
         users: {
-          total: totalUsers,
+          total: totalStudents,
         },
         financials: {
           totalRevenue,
@@ -72,12 +88,12 @@ const getStats = async (req, res, next) => {
   }
 };
 
-// @desc    Get visual charts & analytics data for Recharts
+// @desc    Get visual charts & analytics data for Recharts (Hostel Blocks & Fees)
 // @route   GET /api/admin/analytics
 // @access  Private/Admin
 const getAnalytics = async (req, res, next) => {
   try {
-    // 1. Monthly revenue breakdown (last 6 months)
+    // 1. Monthly fee collections (last 6 months)
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const now = new Date();
     const monthlyData = [];
@@ -113,35 +129,34 @@ const getAnalytics = async (req, res, next) => {
       });
     }
 
-    // 2. Room category distribution
+    // 2. Hostel Block / Room Category distribution
     const categoryDistribution = await Room.aggregate([
       {
         $group: {
-          _id: '$category',
+          _id: '$block',
           count: { $sum: 1 },
-          avgPrice: { $avg: '$pricePerNight' },
+          totalBeds: { $sum: '$capacity' },
         },
       },
       {
         $project: {
           name: '$_id',
-          count: 1,
-          avgPrice: { $round: ['$avgPrice', 0] },
+          count: '$totalBeds',
           _id: 0,
         },
       },
     ]);
 
-    // 3. Booking status breakdown for PieChart
+    // 3. Status breakdown
     const statusCounts = await Booking.aggregate([
       { $group: { _id: '$status', count: { $sum: 1 } } },
       { $project: { name: '$_id', value: '$count', _id: 0 } },
     ]);
 
-    // 4. Recent Bookings (top 6)
+    // 4. Recent Allocations
     const recentBookings = await Booking.find()
-      .populate('user', 'name email')
-      .populate('room', 'name roomNumber category')
+      .populate('user', 'name email studentId')
+      .populate('room', 'name roomNumber block category')
       .sort({ createdAt: -1 })
       .limit(6);
 

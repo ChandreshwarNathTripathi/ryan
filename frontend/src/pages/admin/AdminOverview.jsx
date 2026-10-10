@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { adminService, bookingService } from '../../services/api';
 import {
-  BedDouble,
+  Building2,
   CalendarCheck2,
   Users,
   DollarSign,
@@ -12,6 +12,7 @@ import {
   XCircle,
   ArrowRight,
   ShieldAlert,
+  BedDouble,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -42,7 +43,7 @@ const AdminOverview = () => {
       if (statsRes.data?.success) setStats(statsRes.data.data);
       if (analyticsRes.data?.success) setAnalytics(analyticsRes.data.data);
     } catch (err) {
-      setError(err.friendlyMessage || 'Failed to load dashboard metrics.');
+      setError(err.friendlyMessage || 'Failed to load warden dashboard metrics.');
     } finally {
       setLoading(false);
     }
@@ -57,7 +58,7 @@ const AdminOverview = () => {
       await bookingService.updateBookingStatus(bookingId, { status: newStatus });
       fetchDashboardData(); // Refresh data
     } catch (err) {
-      alert(err.friendlyMessage || 'Failed to update booking status.');
+      alert(err.friendlyMessage || 'Failed to update allocation status.');
     }
   };
 
@@ -85,33 +86,33 @@ const AdminOverview = () => {
 
   const kpis = [
     {
-      label: 'Total Revenue',
+      label: 'Hostel Fee Collections',
       value: `$${stats?.financials?.totalRevenue?.toLocaleString() || 0}`,
-      sub: 'From verified bookings',
+      sub: 'From semester room & mess fees',
       icon: DollarSign,
       color: '#F59E0B',
       bgColor: 'rgba(245, 158, 11, 0.15)',
     },
     {
-      label: 'Total Bookings',
+      label: 'Student Allocations',
       value: stats?.bookings?.total || 0,
-      sub: `${stats?.bookings?.confirmed || 0} Confirmed • ${stats?.bookings?.pending || 0} Pending`,
+      sub: `${stats?.bookings?.confirmed || 0} Active Residents • ${stats?.bookings?.pending || 0} Pending`,
       icon: CalendarCheck2,
       color: '#8B5CF6',
       bgColor: 'rgba(139, 92, 246, 0.15)',
     },
     {
-      label: 'Room Inventory',
+      label: 'Hostel Dorm Inventory',
       value: `${stats?.rooms?.available || 0} / ${stats?.rooms?.total || 0}`,
-      sub: 'Suites available now',
+      sub: 'Dorms with vacant beds',
       icon: BedDouble,
       color: '#10B981',
       bgColor: 'rgba(16, 185, 129, 0.15)',
     },
     {
-      label: 'Registered Guests',
+      label: 'Registered Students',
       value: stats?.users?.total || 0,
-      sub: 'Active user accounts',
+      sub: 'Verified resident accounts',
       icon: Users,
       color: '#38BDF8',
       bgColor: 'rgba(56, 189, 248, 0.15)',
@@ -122,9 +123,9 @@ const AdminOverview = () => {
     <div>
       {/* Top Header */}
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Executive Dashboard</h1>
+        <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Chief Warden Operations Console</h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          Real-time hospitality operations, revenue flow, and reservation logistics.
+          Real-time hostel occupancy, bed allocations, mess meal tracking, and fee collections across Blocks A, B, and C.
         </p>
       </div>
 
@@ -173,14 +174,14 @@ const AdminOverview = () => {
         gap: '28px',
         marginBottom: '40px',
       }}>
-        {/* Monthly Revenue Trend */}
+        {/* Monthly Fee Collection Trend */}
         <div className="card" style={{ padding: '28px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Revenue Analytics (Last 6 Months)</h2>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Aggregated revenue from simulated bookings</p>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Hostel Fee Collections (Last 6 Months)</h2>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Aggregated revenue from semester room & mess dues</p>
             </div>
-            <span className="badge badge-primary"><TrendingUp size={12} /> Revenue Flow</span>
+            <span className="badge badge-primary"><TrendingUp size={12} /> Fee Analytics</span>
           </div>
 
           <div style={{ width: '100%', height: '260px' }}>
@@ -202,7 +203,7 @@ const AdminOverview = () => {
                     borderRadius: '8px',
                     color: '#FFFFFF',
                   }}
-                  formatter={(val) => [`$${val.toLocaleString()}`, 'Revenue']}
+                  formatter={(val) => [`$${val.toLocaleString()}`, 'Collections']}
                 />
                 <Area type="monotone" dataKey="revenue" stroke="#8B5CF6" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
               </AreaChart>
@@ -214,10 +215,10 @@ const AdminOverview = () => {
         <div className="card" style={{ padding: '28px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Suites by Category</h2>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Inventory counts per suite category</p>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Dorm Types & Sharing Categories</h2>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Room distribution across campus residential halls</p>
             </div>
-            <span className="badge badge-gold"><BedDouble size={12} /> Inventory</span>
+            <span className="badge badge-gold"><Building2 size={12} /> Hall Inventory</span>
           </div>
 
           <div style={{ width: '100%', height: '260px' }}>
@@ -233,7 +234,7 @@ const AdminOverview = () => {
                     borderRadius: '8px',
                     color: '#FFFFFF',
                   }}
-                  formatter={(val) => [`${val} Suites`, 'Inventory']}
+                  formatter={(val) => [`${val} Dorms`, 'Inventory']}
                 />
                 <Bar dataKey="count" fill="#F59E0B" radius={[6, 6, 0, 0]} />
               </BarChart>
@@ -242,7 +243,7 @@ const AdminOverview = () => {
         </div>
       </div>
 
-      {/* Recent Bookings Table */}
+      {/* Recent Allocations Table */}
       <div className="card" style={{ padding: '28px' }}>
         <div style={{
           display: 'flex',
@@ -251,11 +252,11 @@ const AdminOverview = () => {
           marginBottom: '20px',
         }}>
           <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Recent Reservations</h2>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Latest guest bookings submitted across all wings</p>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Recent Student Bed Allocations</h2>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Latest bed allotment applications and warden approvals</p>
           </div>
           <Link to="/admin/bookings" className="btn btn-secondary btn-sm">
-            View All Reservations <ArrowRight size={14} />
+            View All Allocations <ArrowRight size={14} />
           </Link>
         </div>
 
@@ -264,12 +265,12 @@ const AdminOverview = () => {
             <thead>
               <tr>
                 <th>Reference</th>
-                <th>Guest</th>
-                <th>Suite</th>
-                <th>Check-In / Out</th>
-                <th>Amount</th>
+                <th>Student Resident</th>
+                <th>Hostel Dorm</th>
+                <th>Academic Term</th>
+                <th>Semester Fee</th>
                 <th>Status</th>
-                <th>Quick Action</th>
+                <th>Warden Action</th>
               </tr>
             </thead>
             <tbody>
@@ -280,18 +281,18 @@ const AdminOverview = () => {
                       <span style={{ fontWeight: 700, color: '#FBBF24' }}>{b.bookingReference}</span>
                     </td>
                     <td>
-                      <div style={{ fontWeight: 600 }}>{b.user?.name || 'Guest'}</div>
+                      <div style={{ fontWeight: 600 }}>{b.user?.name || 'Student'}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{b.user?.email}</div>
                     </td>
                     <td>
-                      <div>{b.room?.name || 'Suite'}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>#{b.room?.roomNumber}</div>
+                      <div>{b.room?.name || 'Dorm'}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{b.room?.block} • #{b.room?.roomNumber}</div>
                     </td>
                     <td>
                       <div style={{ fontSize: '0.85rem' }}>
-                        {new Date(b.checkIn).toLocaleDateString()} → {new Date(b.checkOut).toLocaleDateString()}
+                        {b.semester || 'Fall 2026'} ({b.academicYear || '2026-2027'})
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{b.numberOfNights} nights</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{b.messPlan || '4-Meal Plan'}</div>
                     </td>
                     <td>
                       <span style={{ fontWeight: 700 }}>${b.totalAmount}</span>
@@ -302,7 +303,7 @@ const AdminOverview = () => {
                         b.status === 'pending' ? 'badge-warning' :
                         b.status === 'cancelled' ? 'badge-danger' : 'badge-neutral'
                       }`}>
-                        {b.status}
+                        {b.status === 'confirmed' ? 'Active' : b.status}
                       </span>
                     </td>
                     <td>
@@ -312,10 +313,10 @@ const AdminOverview = () => {
                         className="form-select"
                         style={{ padding: '6px 10px', fontSize: '0.8rem', width: 'auto' }}
                       >
-                        <option value="confirmed">Confirmed</option>
-                        <option value="pending">Pending</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="completed">Completed</option>
+                        <option value="confirmed">Confirm Allotment</option>
+                        <option value="pending">Mark Pending</option>
+                        <option value="cancelled">Vacate Bed</option>
+                        <option value="completed">Complete Term</option>
                       </select>
                     </td>
                   </tr>
@@ -323,7 +324,7 @@ const AdminOverview = () => {
               ) : (
                 <tr>
                   <td colSpan="7" style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>
-                    No recent bookings found.
+                    No recent hostel bed allocations found.
                   </td>
                 </tr>
               )}

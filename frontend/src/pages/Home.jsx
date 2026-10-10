@@ -2,19 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { roomService, reviewService } from '../services/api';
 import {
-  Sparkles,
+  Building2,
   Calendar,
   Users,
   Search,
   Star,
   ShieldCheck,
   Coffee,
-  Waves,
+  Wifi,
   UtensilsCrossed,
-  Sparkle,
+  Sparkles,
   ArrowRight,
   CheckCircle2,
-  Crown,
+  BookOpen,
+  Zap,
 } from 'lucide-react';
 
 const Home = () => {
@@ -24,21 +25,12 @@ const Home = () => {
   const [loadingRooms, setLoadingRooms] = useState(true);
 
   // Search Bar Form State
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
-  const [guests, setGuests] = useState('2');
+  const [block, setBlock] = useState('All');
   const [category, setCategory] = useState('All');
+  const [capacity, setCapacity] = useState('All');
+  const [gender, setGender] = useState('All');
 
   useEffect(() => {
-    // Set default check-in tomorrow, check-out in 4 days
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const future = new Date();
-    future.setDate(future.getDate() + 4);
-
-    setCheckIn(tomorrow.toISOString().split('T')[0]);
-    setCheckOut(future.toISOString().split('T')[0]);
-
     const fetchHomeData = async () => {
       try {
         const [roomsRes, reviewsRes] = await Promise.all([
@@ -65,31 +57,33 @@ const Home = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const queryParams = new URLSearchParams();
+    if (block && block !== 'All') queryParams.append('block', block);
     if (category && category !== 'All') queryParams.append('category', category);
-    if (guests) queryParams.append('capacity', guests);
+    if (capacity && capacity !== 'All') queryParams.append('capacity', capacity);
+    if (gender && gender !== 'All') queryParams.append('gender', gender);
     navigate(`/rooms?${queryParams.toString()}`);
   };
 
   const amenitiesList = [
     {
-      icon: Waves,
-      title: 'Oceanfront Infinity Pools',
-      desc: 'Heated saltwater pools offering uninterrupted sunset horizons and VIP poolside cabanas.',
+      icon: Wifi,
+      title: 'Gigabit Campus Wi-Fi',
+      desc: 'High-speed dedicated optical fiber with coverage across dorms, study lounges, and common rooms.',
     },
     {
       icon: UtensilsCrossed,
-      title: 'Michelin-Starred Dining',
-      desc: 'Three signature restaurants curated by world-renowned executive chefs with wine pairings.',
+      title: 'Hygienic Mess & Dining',
+      desc: 'Nutritious 4-meal daily dining plans with balanced diets, clean RO water, and weekend specials.',
     },
     {
-      icon: Sparkle,
-      title: 'Holistic Sanctuary & Spa',
-      desc: 'Deep restorative hydrotherapy, Himalayan salt sauna, and bespoke botanical rituals.',
+      icon: ShieldCheck,
+      title: '24/7 Biometric Security',
+      desc: 'CCTV surveillance, automated biometric curfew attendance, and dedicated wardens on every floor.',
     },
     {
-      icon: Crown,
-      title: '24/7 Dedicated Butler Service',
-      desc: 'Impeccable personal concierge catering to packing, private dining, and excursion planning.',
+      icon: Zap,
+      title: '100% Power Backup & Study Halls',
+      desc: 'Uninterrupted power generator backups, quiet night study spaces, and solar water heaters.',
     },
   ];
 
@@ -102,15 +96,15 @@ const Home = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(rgba(9, 13, 22, 0.65), rgba(9, 13, 22, 0.95)), url("https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=2000&q=80")',
+        background: 'linear-gradient(rgba(9, 13, 22, 0.72), rgba(9, 13, 22, 0.95)), url("https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=2000&q=80")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         padding: '80px 20px',
       }}>
-        <div className="container" style={{ textAlign: 'center', maxWidth: '1000px', zIndex: 2 }}>
+        <div className="container" style={{ textAlign: 'center', maxWidth: '1050px', zIndex: 2 }}>
           <div style={{ marginBottom: '16px' }}>
             <span className="badge badge-gold" style={{ fontSize: '0.85rem', padding: '6px 16px' }}>
-              <Crown size={14} /> The Ultimate Sanctuary of Luxury
+              <Building2 size={14} /> Official Campus Student Residences
             </span>
           </div>
 
@@ -120,17 +114,17 @@ const Home = () => {
             marginBottom: '20px',
             lineHeight: 1.15,
           }}>
-            Luxury Stays, <span className="text-gradient">Unforgettable Experiences</span>
+            Smart Hostel Living, <span className="text-gradient">Built for Academic Success</span>
           </h1>
 
           <p style={{
             fontSize: 'clamp(1rem, 2vw, 1.25rem)',
             color: 'var(--text-secondary)',
-            maxWidth: '720px',
+            maxWidth: '740px',
             margin: '0 auto 40px auto',
             lineHeight: 1.6,
           }}>
-            Immerse yourself in world-class architecture, bespoke concierge service, and breathtaking coastal horizons. Your private escape awaits.
+            Experience safe, modern hostel dormitories with instant bed allocation, biometric curfew check-in, 4-meal nutritious mess plans, and dedicated study facilities.
           </p>
 
           {/* Availability Search Bar Widget */}
@@ -147,66 +141,69 @@ const Home = () => {
             }}>
               <div>
                 <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Calendar size={14} color="#8B5CF6" /> Check-In Date
-                </label>
-                <input
-                  type="date"
-                  className="form-input"
-                  value={checkIn}
-                  onChange={(e) => setCheckIn(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Calendar size={14} color="#8B5CF6" /> Check-Out Date
-                </label>
-                <input
-                  type="date"
-                  className="form-input"
-                  value={checkOut}
-                  onChange={(e) => setCheckOut(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Users size={14} color="#8B5CF6" /> Guests
+                  <Building2 size={14} color="#8B5CF6" /> Hostel Block
                 </label>
                 <select
                   className="form-select"
-                  value={guests}
-                  onChange={(e) => setGuests(e.target.value)}
+                  value={block}
+                  onChange={(e) => setBlock(e.target.value)}
                 >
-                  <option value="1">1 Guest</option>
-                  <option value="2">2 Guests</option>
-                  <option value="3">3 Guests</option>
-                  <option value="4">4 Guests</option>
-                  <option value="6">6+ Guests (Villa)</option>
+                  <option value="All">All Blocks</option>
+                  <option value="Block A (Boys)">Block A (Boys)</option>
+                  <option value="Block B (Girls)">Block B (Girls)</option>
+                  <option value="Block C (Scholars)">Block C (Scholars)</option>
                 </select>
               </div>
 
               <div>
-                <label className="form-label">Category</label>
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Users size={14} color="#8B5CF6" /> Room Type
+                </label>
                 <select
                   className="form-select"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
-                  <option value="All">All Suites & Villas</option>
-                  <option value="Presidential Suite">Presidential Suite</option>
-                  <option value="Ocean Villa">Ocean Villa</option>
-                  <option value="Executive Suite">Executive Suite</option>
-                  <option value="Deluxe">Deluxe King</option>
-                  <option value="Family Suite">Family Villa</option>
+                  <option value="All">All Sharing Types</option>
+                  <option value="Single Room">Single Private Room</option>
+                  <option value="Double Sharing">Double Sharing (2 Beds)</option>
+                  <option value="Triple Sharing">Triple Sharing (3 Beds)</option>
+                  <option value="Four Bed Dorm">Four Bed Dormitory</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="form-label">Gender Wing</label>
+                <select
+                  className="form-select"
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                >
+                  <option value="All">All Wings</option>
+                  <option value="Male">Male Residency</option>
+                  <option value="Female">Female Residency</option>
+                  <option value="Co-ed">Co-ed Scholars Wing</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="form-label">Bed Capacity</label>
+                <select
+                  className="form-select"
+                  value={capacity}
+                  onChange={(e) => setCapacity(e.target.value)}
+                >
+                  <option value="All">Any Beds</option>
+                  <option value="1">1 Bed Room</option>
+                  <option value="2">2 Beds Room</option>
+                  <option value="3">3 Beds Room</option>
+                  <option value="4">4 Beds Dorm</option>
                 </select>
               </div>
 
               <div>
                 <button type="submit" className="btn btn-primary" style={{ width: '100%', height: '48px' }}>
-                  <Search size={18} /> Check Availability
+                  <Search size={18} /> Search Dorms
                 </button>
               </div>
             </form>
@@ -214,7 +211,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 2. Hotel Story & Core Highlights */}
+      {/* 2. Hostel Story & Core Highlights */}
       <section style={{ padding: '80px 0', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="container">
           <div style={{
@@ -225,13 +222,13 @@ const Home = () => {
           }}>
             <div>
               <span className="badge badge-primary" style={{ marginBottom: '14px' }}>
-                Unrivaled Excellence
+                Safe & Vibrant Community
               </span>
               <h2 style={{ fontSize: '2.4rem', marginBottom: '20px', lineHeight: 1.2 }}>
-                Crafted for Discerning Connoisseurs of Travel
+                Designed for Focus, Friendship & Wellbeing
               </h2>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '1.05rem' }}>
-                XShotel stands as an architectural triumph situated in an exclusive private peninsula. From hand-crafted Italian marble finishes to customized room climate profiles, every nuance of your visit is flawlessly curated.
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '1.05rem', lineHeight: 1.6 }}>
+                XSHostel provides state-of-the-art campus accommodations for university students and research scholars. From biometric security protocols to ergonomic study desks and customized meal subscriptions, we ensure your residential life feels safe, organized, and truly like a second home.
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
@@ -241,8 +238,8 @@ const Home = () => {
                   borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--border-subtle)',
                 }}>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#C4B5FD' }}>98.6%</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Guest Satisfaction</div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#C4B5FD' }}>500+</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Campus Beds Available</div>
                 </div>
                 <div style={{
                   padding: '16px',
@@ -250,20 +247,20 @@ const Home = () => {
                   borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--border-subtle)',
                 }}>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#FBBF24' }}>5-Star</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Luxury Hospitality Rating</div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#FBBF24' }}>99.4%</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Resident Parent Approval</div>
                 </div>
               </div>
 
               <Link to="/rooms" className="btn btn-outline-primary">
-                Explore All Suites <ArrowRight size={16} />
+                Explore Available Dorms <ArrowRight size={16} />
               </Link>
             </div>
 
             <div style={{ position: 'relative' }}>
               <img
-                src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"
-                alt="Luxury resort aerial"
+                src="https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80"
+                alt="Modern hostel dorm room"
                 style={{
                   width: '100%',
                   height: '440px',
@@ -287,10 +284,10 @@ const Home = () => {
                 alignItems: 'center',
                 gap: '14px',
               }}>
-                <Crown size={28} color="#F59E0B" />
+                <ShieldCheck size={28} color="#10B981" />
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#FFFFFF' }}>World Luxury Hotel Award</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Best Oceanfront Resort 2026</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#FFFFFF' }}>Chief Warden Verified</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Curfew, Biometrics & Emergency Protocol Ready</div>
                 </div>
               </div>
             </div>
@@ -311,15 +308,15 @@ const Home = () => {
           }}>
             <div>
               <span className="badge badge-gold" style={{ marginBottom: '12px' }}>
-                Signature Collections
+                Featured Residencies
               </span>
-              <h2 style={{ fontSize: '2.4rem' }}>Featured Luxury Suites</h2>
+              <h2 style={{ fontSize: '2.4rem' }}>Popular Hostel Dormitories</h2>
               <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>
-                Handpicked suites offering panoramic views, bespoke appointments, and unprecedented comfort.
+                High-demand student rooms with verified bed spaces, study furniture, and attached baths.
               </p>
             </div>
             <Link to="/rooms" className="btn btn-secondary">
-              View All Accommodations <ArrowRight size={16} />
+              View All Hostel Dorms <ArrowRight size={16} />
             </Link>
           </div>
 
@@ -333,108 +330,119 @@ const Home = () => {
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: '28px',
             }}>
-              {featuredRooms.map((room) => (
-                <div key={room._id} className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ position: 'relative', height: '240px', overflow: 'hidden' }}>
-                    <img
-                      src={room.images[0]}
-                      alt={room.name}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transition: 'transform 0.5s ease',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.06)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                    />
-                    <div style={{
-                      position: 'absolute',
-                      top: '16px',
-                      left: '16px',
-                      display: 'flex',
-                      gap: '8px',
-                    }}>
-                      <span className="badge badge-primary">{room.category}</span>
+              {featuredRooms.map((room) => {
+                const availableBeds = (room.capacity || 1) - (room.occupiedBeds || 0);
+                return (
+                  <div key={room._id} className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ position: 'relative', height: '240px', overflow: 'hidden' }}>
+                      <img
+                        src={room.images?.[0] || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80'}
+                        alt={room.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          transition: 'transform 0.5s ease',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.06)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        top: '16px',
+                        left: '16px',
+                        display: 'flex',
+                        gap: '8px',
+                        flexWrap: 'wrap',
+                      }}>
+                        <span className="badge badge-primary">{room.block || 'Hostel Block'}</span>
+                        <span className="badge badge-secondary">{room.gender || 'Wing'}</span>
+                      </div>
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '16px',
+                        right: '16px',
+                        background: 'rgba(9, 13, 22, 0.85)',
+                        backdropFilter: 'blur(8px)',
+                        padding: '6px 12px',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                        color: '#FBBF24',
+                      }}>
+                        ${room.pricePerNight} <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 400 }}>/ semester</span>
+                      </div>
                     </div>
-                    <div style={{
-                      position: 'absolute',
-                      bottom: '16px',
-                      right: '16px',
-                      background: 'rgba(9, 13, 22, 0.85)',
-                      backdropFilter: 'blur(8px)',
-                      padding: '6px 12px',
-                      borderRadius: 'var(--radius-md)',
-                      fontSize: '0.85rem',
-                      fontWeight: 700,
-                      color: '#FBBF24',
-                    }}>
-                      ${room.pricePerNight} <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 400 }}>/ night</span>
+
+                    <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{room.name}</h3>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Room #{room.roomNumber}</span>
+                      </div>
+
+                      <p style={{
+                        color: 'var(--text-secondary)',
+                        fontSize: '0.875rem',
+                        lineHeight: 1.5,
+                        marginBottom: '16px',
+                        flex: 1,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}>
+                        {room.description}
+                      </p>
+
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: '0.8rem',
+                        color: 'var(--text-muted)',
+                        marginBottom: '20px',
+                        borderTop: '1px solid var(--border-subtle)',
+                        paddingTop: '12px',
+                      }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Users size={14} color="#8B5CF6" /> {room.capacity} Beds Total
+                        </span>
+                        <span className={`badge ${availableBeds > 0 ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.75rem' }}>
+                          {availableBeds > 0 ? `${availableBeds} Bed(s) Vacant` : 'Fully Allocated'}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <Link to={`/rooms/${room._id}`} className="btn btn-secondary btn-sm">
+                          View Details
+                        </Link>
+                        <Link
+                          to={`/booking?roomId=${room._id}`}
+                          className={`btn btn-sm ${availableBeds > 0 ? 'btn-primary' : 'btn-secondary disabled'}`}
+                          style={{ pointerEvents: availableBeds > 0 ? 'auto' : 'none', opacity: availableBeds > 0 ? 1 : 0.6 }}
+                        >
+                          {availableBeds > 0 ? 'Apply Bed' : 'Full'}
+                        </Link>
+                      </div>
                     </div>
                   </div>
-
-                  <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
-                      <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{room.name}</h3>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>{room.roomNumber}</span>
-                    </div>
-
-                    <p style={{
-                      color: 'var(--text-secondary)',
-                      fontSize: '0.875rem',
-                      lineHeight: 1.5,
-                      marginBottom: '16px',
-                      flex: 1,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}>
-                      {room.description}
-                    </p>
-
-                    <div style={{
-                      display: 'flex',
-                      gap: '12px',
-                      fontSize: '0.8rem',
-                      color: 'var(--text-muted)',
-                      marginBottom: '20px',
-                      borderTop: '1px solid var(--border-subtle)',
-                      paddingTop: '12px',
-                    }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Users size={14} color="#8B5CF6" /> Up to {room.capacity} Guests
-                      </span>
-                      <span>•</span>
-                      <span>{room.amenities[0] || 'Luxury King Bed'}</span>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      <Link to={`/rooms/${room._id}`} className="btn btn-secondary btn-sm">
-                        Details
-                      </Link>
-                      <Link to={`/booking?roomId=${room._id}`} className="btn btn-primary btn-sm">
-                        Reserve Now
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
       </section>
 
-      {/* 4. Luxury Amenities Showcase */}
+      {/* 4. Campus Amenities Showcase */}
       <section id="amenities" style={{ padding: '80px 0', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto 60px auto' }}>
             <span className="badge badge-primary" style={{ marginBottom: '12px' }}>
-              Curated Indulgence
+              Student Facilities
             </span>
-            <h2 style={{ fontSize: '2.4rem', marginBottom: '16px' }}>World-Class Resort Amenities</h2>
+            <h2 style={{ fontSize: '2.4rem', marginBottom: '16px' }}>Comprehensive Hostel Infrastructure</h2>
             <p style={{ color: 'var(--text-secondary)' }}>
-              From Michelin-caliber gastronomical journeys to serene infinity pools, everything is designed for pure tranquility.
+              Everything a collegiate scholar requires to thrive academically, maintain healthy habits, and enjoy campus life.
             </p>
           </div>
 
@@ -471,16 +479,16 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 5. Guest Testimonials */}
+      {/* 5. Student Resident Feedback */}
       <section style={{ padding: '80px 0', background: 'var(--bg-secondary)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto 50px auto' }}>
             <span className="badge badge-gold" style={{ marginBottom: '12px' }}>
-              Guest Impressions
+              Resident Testimonials
             </span>
-            <h2 style={{ fontSize: '2.4rem', marginBottom: '16px' }}>What Our Guests Say</h2>
+            <h2 style={{ fontSize: '2.4rem', marginBottom: '16px' }}>What Our Students Say</h2>
             <p style={{ color: 'var(--text-secondary)' }}>
-              Real experiences from guests who made XShotel their premier destination of choice.
+              Real reviews from resident scholars who live and study inside XSHostel halls.
             </p>
           </div>
 
@@ -524,14 +532,14 @@ const Home = () => {
                     fontWeight: 700,
                     fontSize: '0.85rem',
                   }}>
-                    {review.user?.name ? review.user.name.charAt(0) : 'G'}
+                    {review.user?.name ? review.user.name.charAt(0) : 'S'}
                   </div>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                      {review.user?.name || 'Verified Luxury Guest'}
+                      {review.user?.name || 'Resident Student'}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      Stayed in {review.room?.name || 'Grand Suite'}
+                      Resident in {review.room?.name || 'Block A Dorm'}
                     </div>
                   </div>
                 </div>
@@ -552,22 +560,22 @@ const Home = () => {
             textAlign: 'center',
             boxShadow: 'var(--shadow-lg), 0 0 50px rgba(139, 92, 246, 0.15)',
           }}>
-            <Crown size={36} color="#F59E0B" style={{ marginBottom: '16px' }} />
-            <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>Reserve Your Extraordinary Stay</h2>
+            <Building2 size={36} color="#8B5CF6" style={{ marginBottom: '16px' }} />
+            <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>Apply For Your Hostel Allocation</h2>
             <p style={{
               color: 'var(--text-secondary)',
-              maxWidth: '600px',
+              maxWidth: '620px',
               margin: '0 auto 32px auto',
               fontSize: '1.05rem',
             }}>
-              Discover bespoke packages, exclusive chef-table dining reservations, and complimentary airport chauffeur services today.
+              Join hundreds of fellow university students enjoying safe, high-speed, and well-managed residential living at XSHostel.
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <Link to="/rooms" className="btn btn-primary btn-lg">
-                Browse Suites & Villas
+                Browse Hostel Blocks & Dorms
               </Link>
               <Link to="/register" className="btn btn-secondary btn-lg">
-                Create Guest Account
+                Register as New Student
               </Link>
             </div>
           </div>

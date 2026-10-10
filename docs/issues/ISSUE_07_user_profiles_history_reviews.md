@@ -29,12 +29,12 @@ Deliver the authenticated guest services portal: viewing and updating personal p
 ---
 
 ## 3. Acceptance Criteria
-- [x] Guests cannot access or cancel reservations belonging to other users.
-- [x] Cancelled reservations update their status to `cancelled` and payment status to `refunded`.
-- [x] Profile updates immediately reflect in session state and MongoDB.
-- [x] Guest reviews display with user name and verified star rating.
+- [x] Students cannot access or vacate allocations belonging to other students.
+- [x] Vacated allocations update their status to `cancelled` and release bed capacity immediately.
+- [x] Student profile updates (Student ID, Course, Guardian Contact) immediately reflect in session state and MongoDB.
+- [x] Resident student reviews display with user name and verified star rating.
 
 ---
 
 ## 4. Verification
-Log in as `guest@xshotel.com` (`Guest@123`), navigate to `/my-bookings` to view bookings and test cancellation.
+Log in as `student@xshostel.com` (`Student@123`), navigate to `/my-bookings` to view allocations and test vacating.

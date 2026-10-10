@@ -12,20 +12,20 @@
 ---
 
 ## 1. Description & Objective
-Implement the hotel reservation engine. Validate check-in and check-out dates, verify guest capacity, enforce server-side price calculation (preventing client manipulation), prevent overlapping reservations, generate human-readable reference numbers, and simulate instant demo payment confirmation.
+Implement the hostel bed allocation engine. Validate semester session dates, verify bed capacity limits, enforce server-side semester and mess plan fee calculations, prevent overcapacity allocations (`409 Conflict`), generate student reference numbers (`HST-2026-XXXXXX`), and simulate instant university bursar fee confirmation.
 
 ---
 
 ## 2. Detailed Scope
 - [x] Implement `POST /api/bookings` with:
-  - Check-in must be present or future date; check-out must be strictly greater than check-in.
-  - Guest count cannot exceed room capacity.
-  - Server calculates duration of nights, room subtotal, 12% luxury tax, and final amount.
-  - Generates unique reference (e.g. `XSH-2026-XXXXXX`).
-  - Strict date overlap check preventing double bookings on confirmed/pending reservations.
-- [x] Build multi-step `BookingPage.jsx` with date pickers, capacity limit, special requests, and demo payment instrument simulator.
-- [x] Display instant confirmation voucher displaying reference code, room thumbnail, dates, and total amount.
-- [x] Implement `PATCH /api/bookings/:id/cancel` enabling guest cancellations for upcoming eligible reservations.
+  - Check-in and check-out dates representing the academic semester session.
+  - Active bed capacity checks preventing over-allocation.
+  - Server calculates room semester fee, mess plan subscription fee, and refundable caution deposit ($100).
+  - Generates unique reference (e.g. `HST-2026-XXXXXX`).
+  - Strict conflict check returning `409 Conflict` if no beds remain in the room.
+- [x] Build multi-step `BookingPage.jsx` with academic year, semester term, mess plan selector, and demo fee payment simulator.
+- [x] Display instant confirmation voucher displaying allocation reference, dorm block, room number, semester, and total fee.
+- [x] Implement `PATCH /api/bookings/:id/cancel` enabling student room vacating requests.
 
 ---
 

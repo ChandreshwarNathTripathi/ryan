@@ -40,5 +40,5 @@ Implement end-to-end security, including password hashing via bcryptjs, JWT toke
 ```bash
 curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@xshotel.com","password":"Admin@123"}'
+  -d '{"email":"admin@xshostel.com","password":"Admin@123"}'
 ```

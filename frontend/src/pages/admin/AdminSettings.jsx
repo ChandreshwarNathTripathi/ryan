@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { Settings, Save, CheckCircle2, ShieldCheck, Crown } from 'lucide-react';
+import { Settings, Save, CheckCircle2, ShieldCheck, Building2 } from 'lucide-react';
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
-    hotelName: 'XShotel Luxury Stays & Villas',
-    tagline: 'Luxury Stays, Unforgettable Experiences',
-    conciergeEmail: 'reservations@xshotel.com',
-    conciergePhone: '+1 (800) 874-9000',
-    address: '100 Azure Bay Promenade, Grand Marina Peninsula',
-    checkInTime: '14:00',
-    checkOutTime: '11:00',
-    taxRate: '12',
+    hostelName: 'XSHostel Campus Residencies',
+    tagline: 'Smart Hostel Living, Built for Academic Success',
+    wardenEmail: 'warden@xshostel.com',
+    wardenHelpline: '+1 (800) 467-8350',
+    campusAddress: 'University Campus Avenue, East Academic Wing, Campus Gate 3',
+    curfewTime: '22:00',
+    gateOpenTime: '06:00',
+    cautionDeposit: '100',
+    standardMessFee: '200',
     currency: 'USD ($)',
   });
 
@@ -25,9 +26,9 @@ const AdminSettings = () => {
   return (
     <div style={{ maxWidth: '800px' }}>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Hotel Configuration & Policies</h1>
+        <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Hostel Policies & Curfew Settings</h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          Manage global resort identity, check-in schedules, and pricing tax calculations.
+          Manage global campus hostel identity, curfew gate timings, mess fee standards, and student deposits.
         </p>
       </div>
 
@@ -45,29 +46,29 @@ const AdminSettings = () => {
           fontSize: '0.9rem',
         }}>
           <CheckCircle2 size={18} />
-          <span>Hotel settings updated and synchronized across all active resort wings.</span>
+          <span>Hostel settings updated and broadcasted across all residential blocks (A, B, C).</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="card" style={{ padding: '36px' }}>
         <h2 style={{ fontSize: '1.25rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Crown size={20} color="#F59E0B" /> Brand & Contact Credentials
+          <Building2 size={20} color="#8B5CF6" /> Campus Identity & Warden Office Contacts
         </h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div className="form-group">
-            <label className="form-label">Resort & Hotel Name</label>
+            <label className="form-label">Hostel System Name</label>
             <input
               type="text"
               className="form-input"
-              value={settings.hotelName}
-              onChange={(e) => setSettings({ ...settings, hotelName: e.target.value })}
+              value={settings.hostelName}
+              onChange={(e) => setSettings({ ...settings, hostelName: e.target.value })}
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Official Tagline</label>
+            <label className="form-label">Official Campus Motto</label>
             <input
               type="text"
               className="form-input"
@@ -80,91 +81,91 @@ const AdminSettings = () => {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div className="form-group">
-            <label className="form-label">Concierge Email</label>
+            <label className="form-label">Chief Warden Email</label>
             <input
               type="email"
               className="form-input"
-              value={settings.conciergeEmail}
-              onChange={(e) => setSettings({ ...settings, conciergeEmail: e.target.value })}
+              value={settings.wardenEmail}
+              onChange={(e) => setSettings({ ...settings, wardenEmail: e.target.value })}
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Concierge Phone Line</label>
+            <label className="form-label">Warden Emergency Helpline</label>
             <input
               type="text"
               className="form-input"
-              value={settings.conciergePhone}
-              onChange={(e) => setSettings({ ...settings, conciergePhone: e.target.value })}
+              value={settings.wardenHelpline}
+              onChange={(e) => setSettings({ ...settings, wardenHelpline: e.target.value })}
               required
             />
           </div>
         </div>
 
         <div className="form-group">
-          <label className="form-label">Property Location & Address</label>
+          <label className="form-label">Campus Premises & Gate Location</label>
           <input
             type="text"
             className="form-input"
-            value={settings.address}
-            onChange={(e) => setSettings({ ...settings, address: e.target.value })}
+            value={settings.campusAddress}
+            onChange={(e) => setSettings({ ...settings, campusAddress: e.target.value })}
             required
           />
         </div>
 
         <h2 style={{ fontSize: '1.25rem', marginTop: '32px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Settings size={20} color="#8B5CF6" /> Hospitality Operations & Financial Policies
+          <Settings size={20} color="#8B5CF6" /> Curfew Timings & Standard Semester Dues
         </h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
           <div className="form-group">
-            <label className="form-label">Check-In Time</label>
+            <label className="form-label">Night Curfew (Biometrics)</label>
             <input
               type="time"
               className="form-input"
-              value={settings.checkInTime}
-              onChange={(e) => setSettings({ ...settings, checkInTime: e.target.value })}
+              value={settings.curfewTime}
+              onChange={(e) => setSettings({ ...settings, curfewTime: e.target.value })}
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Check-Out Time</label>
+            <label className="form-label">Morning Gate Open</label>
             <input
               type="time"
               className="form-input"
-              value={settings.checkOutTime}
-              onChange={(e) => setSettings({ ...settings, checkOutTime: e.target.value })}
+              value={settings.gateOpenTime}
+              onChange={(e) => setSettings({ ...settings, gateOpenTime: e.target.value })}
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Tax Rate (%)</label>
+            <label className="form-label">Caution Deposit ($)</label>
             <input
               type="number"
               className="form-input"
-              value={settings.taxRate}
-              onChange={(e) => setSettings({ ...settings, taxRate: e.target.value })}
+              value={settings.cautionDeposit}
+              onChange={(e) => setSettings({ ...settings, cautionDeposit: e.target.value })}
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Currency</label>
+            <label className="form-label">Mess Plan Fee ($)</label>
             <input
-              type="text"
+              type="number"
               className="form-input"
-              value={settings.currency}
-              disabled
-              style={{ opacity: 0.7 }}
+              value={settings.standardMessFee}
+              onChange={(e) => setSettings({ ...settings, standardMessFee: e.target.value })}
+              required
             />
           </div>
         </div>
 
         <button type="submit" className="btn btn-primary" style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Save size={16} /> Save Hotel Configuration
+          <Save size={16} /> Save Hostel Policies
         </button>
       </form>
     </div>

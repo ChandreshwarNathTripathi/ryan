@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { userService } from '../../services/api';
-import { Users, Search, Shield, UserCheck, UserX, AlertCircle } from 'lucide-react';
+import { Users, Search, Shield, UserCheck, UserX, AlertCircle, BookOpen, Phone } from 'lucide-react';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -36,7 +36,7 @@ const AdminUsers = () => {
         );
       }
     } catch (err) {
-      alert(err.friendlyMessage || 'Failed to update user status.');
+      alert(err.friendlyMessage || 'Failed to update resident status.');
     } finally {
       setUpdatingId(null);
     }
@@ -62,16 +62,18 @@ const AdminUsers = () => {
     const matchesRole = roleFilter === 'All' || u.role === roleFilter;
     const matchesSearch =
       u.name?.toLowerCase().includes(search.toLowerCase()) ||
-      u.email?.toLowerCase().includes(search.toLowerCase());
+      u.email?.toLowerCase().includes(search.toLowerCase()) ||
+      u.studentId?.toLowerCase().includes(search.toLowerCase()) ||
+      u.course?.toLowerCase().includes(search.toLowerCase());
     return matchesRole && matchesSearch;
   });
 
   return (
     <div>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>User & Staff Directory</h1>
+        <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Student & Staff Directory</h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          Manage user credentials, assign role privileges, and control account active status.
+          Manage resident student records, roll numbers, degree courses, guardian contacts, and warden administrative privileges.
         </p>
       </div>
 
@@ -82,21 +84,21 @@ const AdminUsers = () => {
             <input
               type="text"
               className="form-input"
-              placeholder="Search by name or email address..."
+              placeholder="Search by student name, roll #, email, or course..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          <div style={{ width: '180px' }}>
+          <div style={{ width: '200px' }}>
             <select
               className="form-select"
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
             >
               <option value="All">All Roles</option>
-              <option value="user">Guests (User)</option>
-              <option value="admin">Administrators</option>
+              <option value="user">Resident Students</option>
+              <option value="admin">Wardens & Admins</option>
             </select>
           </div>
         </div>
@@ -112,12 +114,12 @@ const AdminUsers = () => {
           <table className="table">
             <thead>
               <tr>
-                <th>Member</th>
-                <th>Contact</th>
-                <th>Role</th>
+                <th>Resident / Member</th>
+                <th>Academic Course</th>
+                <th>Contact & Guardian</th>
+                <th>System Role</th>
                 <th>Account Status</th>
-                <th>Bookings Count</th>
-                <th>Member Since</th>
+                <th>Bed Allotments</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
@@ -139,16 +141,28 @@ const AdminUsers = () => {
                           fontSize: '0.85rem',
                           color: '#FFFFFF',
                         }}>
-                          {u.name ? u.name.charAt(0) : 'U'}
+                          {u.name ? u.name.charAt(0) : 'S'}
                         </div>
                         <div>
                           <div style={{ fontWeight: 700, color: '#FFFFFF' }}>{u.name}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{u.email}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                            {u.studentId ? `Roll: ${u.studentId} • ` : ''}{u.email}
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <span style={{ fontSize: '0.85rem' }}>{u.phone || 'No phone'}</span>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                        {u.course || 'Undergraduate'}
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ fontSize: '0.85rem' }}>{u.phone || 'No phone'}</div>
+                      {u.guardianPhone && (
+                        <div style={{ fontSize: '0.75rem', color: '#FBBF24' }}>
+                          Guardian: {u.guardianPhone}
+                        </div>
+                      )}
                     </td>
                     <td>
                       <select
@@ -158,22 +172,17 @@ const AdminUsers = () => {
                         className="form-select"
                         style={{ padding: '6px 8px', fontSize: '0.8rem', width: 'auto' }}
                       >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
+                        <option value="user">Student Resident</option>
+                        <option value="admin">Hostel Warden</option>
                       </select>
                     </td>
                     <td>
                       <span className={`badge ${u.status === 'active' ? 'badge-success' : 'badge-danger'}`}>
-                        {u.status}
+                        {u.status === 'active' ? 'Active' : 'Suspended'}
                       </span>
                     </td>
                     <td>
-                      <strong>{u.bookingCount || 0} Stays</strong>
-                    </td>
-                    <td>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                        {new Date(u.createdAt).toLocaleDateString()}
-                      </span>
+                      <strong>{u.bookingCount || 0} Terms</strong>
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <button
@@ -182,7 +191,7 @@ const AdminUsers = () => {
                         className={`btn btn-sm ${u.status === 'active' ? 'btn-secondary' : 'btn-primary'}`}
                         style={{ fontSize: '0.75rem', padding: '6px 12px' }}
                       >
-                        {u.status === 'active' ? 'Deactivate' : 'Activate'}
+                        {u.status === 'active' ? 'Suspend' : 'Activate'}
                       </button>
                     </td>
                   </tr>
@@ -190,7 +199,7 @@ const AdminUsers = () => {
               ) : (
                 <tr>
                   <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                    No users found matching query.
+                    No students or staff found matching query.
                   </td>
                 </tr>
               )}

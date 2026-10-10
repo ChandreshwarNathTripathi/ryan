@@ -9,9 +9,10 @@ import {
   AlertCircle,
   ArrowRight,
   ShieldAlert,
+  Building2,
   BedDouble,
   DollarSign,
-  Crown,
+  UtensilsCrossed,
 } from 'lucide-react';
 
 const MyBookings = () => {
@@ -20,7 +21,7 @@ const MyBookings = () => {
   const [error, setError] = useState(null);
   const [filterStatus, setFilterStatus] = useState('All');
 
-  // Cancel Modal State
+  // Cancel / Vacate Modal State
   const [cancellingBooking, setCancellingBooking] = useState(null);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelMessage, setCancelMessage] = useState(null);
@@ -33,7 +34,7 @@ const MyBookings = () => {
         setBookings(res.data.data);
       }
     } catch (err) {
-      setError(err.friendlyMessage || 'Unable to retrieve reservations.');
+      setError(err.friendlyMessage || 'Unable to retrieve hostel allocations.');
     } finally {
       setLoading(false);
     }
@@ -61,7 +62,7 @@ const MyBookings = () => {
         setCancellingBooking(null);
       }
     } catch (err) {
-      setCancelMessage(err.friendlyMessage || 'Failed to cancel reservation.');
+      setCancelMessage(err.friendlyMessage || 'Failed to vacate bed allocation.');
     } finally {
       setCancelLoading(false);
     }
@@ -75,25 +76,16 @@ const MyBookings = () => {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'confirmed':
-        return <span className="badge badge-success"><CheckCircle2 size={12} /> Confirmed</span>;
+        return <span className="badge badge-success"><CheckCircle2 size={12} /> Active Resident</span>;
       case 'pending':
-        return <span className="badge badge-warning"><Clock size={12} /> Pending</span>;
+        return <span className="badge badge-warning"><Clock size={12} /> Pending Warden Review</span>;
       case 'cancelled':
-        return <span className="badge badge-danger"><XCircle size={12} /> Cancelled</span>;
+        return <span className="badge badge-danger"><XCircle size={12} /> Vacated / Cancelled</span>;
       case 'completed':
-        return <span className="badge badge-neutral">Completed</span>;
+        return <span className="badge badge-neutral">Completed Term</span>;
       default:
         return <span className="badge badge-neutral">{status}</span>;
     }
-  };
-
-  // Eligibility check for cancellation (must be in future and not cancelled)
-  const isEligibleForCancellation = (booking) => {
-    if (booking.status === 'cancelled') return false;
-    const checkInDate = new Date(booking.checkIn);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return checkInDate > today;
   };
 
   return (
@@ -110,16 +102,16 @@ const MyBookings = () => {
         }}>
           <div>
             <span className="badge badge-gold" style={{ marginBottom: '8px' }}>
-              Guest Portal
+              Student Portal
             </span>
-            <h1 style={{ fontSize: '2.4rem', fontWeight: 800 }}>My Reservations</h1>
+            <h1 style={{ fontSize: '2.4rem', fontWeight: 800 }}>My Hostel Allocations</h1>
             <p style={{ color: 'var(--text-secondary)' }}>
-              Manage your upcoming stays, review booking details, and inspect payment receipts.
+              Track your active hostel room allotment, academic term, mess plan, and room vacating requests.
             </p>
           </div>
 
           <Link to="/rooms" className="btn btn-primary btn-sm">
-            Reserve Another Suite
+            Apply For Room Allocation
           </Link>
         </div>
 
@@ -170,13 +162,13 @@ const MyBookings = () => {
           </div>
         ) : filteredBookings.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: '60px 24px' }}>
-            <Calendar size={48} color="#8B5CF6" style={{ margin: '0 auto 16px auto' }} />
-            <h3 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>No reservations found</h3>
-            <p style={{ color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto 24px auto' }}>
-              You do not have any {filterStatus !== 'All' ? filterStatus.toLowerCase() : ''} bookings registered. Explore our suites to book your luxury stay.
+            <Building2 size={48} color="#8B5CF6" style={{ margin: '0 auto 16px auto' }} />
+            <h3 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>No hostel allocations found</h3>
+            <p style={{ color: 'var(--text-secondary)', maxWidth: '440px', margin: '0 auto 24px auto' }}>
+              You do not have any {filterStatus !== 'All' ? filterStatus.toLowerCase() : ''} room allotments recorded. Browse our hostel blocks to apply for a bed.
             </p>
             <Link to="/rooms" className="btn btn-primary">
-              Browse Suites & Villas
+              Browse Hostel Dorms
             </Link>
           </div>
         ) : (
@@ -201,7 +193,7 @@ const MyBookings = () => {
                       {getStatusBadge(b.status)}
                     </div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      Booked on {new Date(b.createdAt).toLocaleDateString()}
+                      Allotted on {new Date(b.createdAt).toLocaleDateString()}
                     </div>
                   </div>
 
@@ -210,7 +202,7 @@ const MyBookings = () => {
                       ${b.totalAmount}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: b.paymentStatus === 'paid' ? '#34D399' : '#FB7185' }}>
-                      ● Payment: {b.paymentStatus.toUpperCase()}
+                      ● Fee Status: {b.paymentStatus.toUpperCase()}
                     </div>
                   </div>
                 </div>
@@ -236,18 +228,18 @@ const MyBookings = () => {
                       />
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                        <BedDouble size={24} color="var(--text-muted)" />
+                        <Building2 size={24} color="var(--text-muted)" />
                       </div>
                     )}
                   </div>
 
-                  {/* Room & Dates */}
+                  {/* Room & Allocation Details */}
                   <div>
                     <h3 style={{ fontSize: '1.2rem', marginBottom: '4px' }}>
-                      {b.room?.name || 'Exclusive Suite'}
+                      {b.room?.name || 'Campus Dorm Room'}
                     </h3>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                      {b.room?.category} • #{b.room?.roomNumber} • {b.guests} {b.guests === 1 ? 'Guest' : 'Guests'}
+                      {b.room?.block || 'Block A'} • Room #{b.room?.roomNumber} • {b.room?.category}
                     </div>
 
                     <div style={{
@@ -258,16 +250,16 @@ const MyBookings = () => {
                       flexWrap: 'wrap',
                     }}>
                       <div>
+                        <span style={{ color: 'var(--text-muted)' }}>Term: </span>
+                        <strong>{b.semester || 'Fall 2026'} ({b.academicYear || '2026-2027'})</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)' }}>Mess Plan: </span>
+                        <strong>{b.messPlan || 'Standard 4-Meal Plan'}</strong>
+                      </div>
+                      <div>
                         <span style={{ color: 'var(--text-muted)' }}>Check-In: </span>
                         <strong>{new Date(b.checkIn).toLocaleDateString()}</strong>
-                      </div>
-                      <div>
-                        <span style={{ color: 'var(--text-muted)' }}>Check-Out: </span>
-                        <strong>{new Date(b.checkOut).toLocaleDateString()}</strong>
-                      </div>
-                      <div>
-                        <span style={{ color: 'var(--text-muted)' }}>Duration: </span>
-                        <strong>{b.numberOfNights} Nights</strong>
                       </div>
                     </div>
 
@@ -278,24 +270,24 @@ const MyBookings = () => {
                         marginTop: '8px',
                         fontStyle: 'italic',
                       }}>
-                        Requests: "{b.specialRequests}"
+                        Preferences: "{b.specialRequests}"
                       </div>
                     )}
                   </div>
 
                   {/* Actions */}
                   <div>
-                    {isEligibleForCancellation(b) ? (
+                    {b.status !== 'cancelled' ? (
                       <button
                         onClick={() => handleCancelClick(b)}
                         className="btn btn-secondary btn-sm"
                         style={{ color: '#FB7185', borderColor: 'rgba(244, 63, 94, 0.3)' }}
                       >
-                        Cancel Stay
+                        Vacate Room
                       </button>
                     ) : (
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                        {b.status === 'cancelled' ? 'Refund Processed' : 'Non-cancellable'}
+                        Vacated
                       </span>
                     )}
                   </div>
@@ -324,11 +316,11 @@ const MyBookings = () => {
               </div>
 
               <h2 style={{ fontSize: '1.4rem', textAlign: 'center', marginBottom: '8px' }}>
-                Cancel Reservation?
+                Vacate Hostel Dorm?
               </h2>
 
               <p style={{ color: 'var(--text-secondary)', textAlign: 'center', fontSize: '0.9rem', marginBottom: '24px' }}>
-                Are you sure you want to cancel booking <strong>{cancellingBooking.bookingReference}</strong> for {cancellingBooking.room?.name}? Your simulated payment of ${cancellingBooking.totalAmount} will be refunded.
+                Are you sure you want to vacate room <strong>#{cancellingBooking.room?.roomNumber}</strong> ({cancellingBooking.bookingReference})? This will immediately release your bed for other students.
               </p>
 
               {cancelMessage && (
@@ -351,7 +343,7 @@ const MyBookings = () => {
                   disabled={cancelLoading}
                   className="btn btn-secondary"
                 >
-                  Keep Reservation
+                  Keep Room
                 </button>
                 <button
                   type="button"
@@ -359,7 +351,7 @@ const MyBookings = () => {
                   disabled={cancelLoading}
                   className="btn btn-danger"
                 >
-                  {cancelLoading ? 'Cancelling...' : 'Confirm Cancellation'}
+                  {cancelLoading ? 'Processing...' : 'Confirm Vacate'}
                 </button>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { reviewService } from '../../services/api';
-import { MessageSquare, Star, Check, X, Trash2 } from 'lucide-react';
+import { MessageSquare, Star, Check, X, Trash2, Building2 } from 'lucide-react';
 
 const AdminReviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -40,7 +40,7 @@ const AdminReviews = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this review permanently?')) return;
+    if (!window.confirm('Delete this resident review permanently?')) return;
     setActionLoadingId(id);
     try {
       await reviewService.deleteReview(id);
@@ -55,9 +55,9 @@ const AdminReviews = () => {
   return (
     <div>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Review Moderation</h1>
+        <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Resident Feedback Moderation</h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          Moderate guest comments, verify ratings, and maintain authentic community feedback.
+          Moderate student living reviews, verify hall ratings, and audit campus satisfaction.
         </p>
       </div>
 
@@ -70,8 +70,8 @@ const AdminReviews = () => {
           <table className="table">
             <thead>
               <tr>
-                <th>Guest Author</th>
-                <th>Suite</th>
+                <th>Resident Author</th>
+                <th>Hostel Dorm</th>
                 <th>Rating</th>
                 <th>Review Comment</th>
                 <th>Status</th>
@@ -84,12 +84,14 @@ const AdminReviews = () => {
                 reviews.map((rev) => (
                   <tr key={rev._id}>
                     <td>
-                      <div style={{ fontWeight: 600 }}>{rev.user?.name || 'Guest'}</div>
+                      <div style={{ fontWeight: 600 }}>{rev.user?.name || 'Student'}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{rev.user?.email}</div>
                     </td>
                     <td>
-                      <div>{rev.room?.name || 'Suite'}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>#{rev.room?.roomNumber}</div>
+                      <div>{rev.room?.name || 'Dorm'}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        {rev.room?.block} • #{rev.room?.roomNumber}
+                      </div>
                     </td>
                     <td>
                       <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
@@ -98,23 +100,20 @@ const AdminReviews = () => {
                         ))}
                       </div>
                     </td>
-                    <td style={{ maxWidth: '320px' }}>
-                      <p style={{
+                    <td>
+                      <div style={{
+                        maxWidth: '280px',
                         fontSize: '0.85rem',
-                        lineHeight: 1.5,
-                        color: 'var(--text-primary)',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
+                        color: 'var(--text-secondary)',
+                        fontStyle: 'italic',
                       }}>
                         "{rev.comment}"
-                      </p>
+                      </div>
                     </td>
                     <td>
                       <span className={`badge ${
                         rev.status === 'approved' ? 'badge-success' :
-                        rev.status === 'pending' ? 'badge-warning' : 'badge-danger'
+                        rev.status === 'rejected' ? 'badge-danger' : 'badge-warning'
                       }`}>
                         {rev.status}
                       </span>
@@ -125,13 +124,13 @@ const AdminReviews = () => {
                       </span>
                     </td>
                     <td style={{ textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '6px' }}>
+                      <div style={{ display: 'inline-flex', gap: '8px' }}>
                         {rev.status !== 'approved' && (
                           <button
                             onClick={() => handleStatusChange(rev._id, 'approved')}
                             disabled={actionLoadingId === rev._id}
                             className="btn btn-secondary btn-sm"
-                            style={{ color: '#10B981', padding: '6px 8px' }}
+                            style={{ color: '#10B981', padding: '6px 10px' }}
                             title="Approve Review"
                           >
                             <Check size={14} />
@@ -142,7 +141,7 @@ const AdminReviews = () => {
                             onClick={() => handleStatusChange(rev._id, 'rejected')}
                             disabled={actionLoadingId === rev._id}
                             className="btn btn-secondary btn-sm"
-                            style={{ color: '#FB7185', padding: '6px 8px' }}
+                            style={{ color: '#FB7185', padding: '6px 10px' }}
                             title="Reject Review"
                           >
                             <X size={14} />
@@ -152,8 +151,8 @@ const AdminReviews = () => {
                           onClick={() => handleDelete(rev._id)}
                           disabled={actionLoadingId === rev._id}
                           className="btn btn-danger btn-sm"
-                          style={{ padding: '6px 8px' }}
-                          title="Delete Permanently"
+                          style={{ padding: '6px 10px' }}
+                          title="Delete Review"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -164,7 +163,7 @@ const AdminReviews = () => {
               ) : (
                 <tr>
                   <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                    No reviews in database.
+                    No resident reviews found.
                   </td>
                 </tr>
               )}

@@ -11,9 +11,10 @@ import {
   AlertCircle,
   Sparkles,
   ArrowRight,
-  Crown,
+  Building2,
   FileText,
   Lock,
+  UtensilsCrossed,
 } from 'lucide-react';
 
 const BookingPage = () => {
@@ -22,46 +23,38 @@ const BookingPage = () => {
   const { user, isAuthenticated } = useAuth();
 
   const roomId = searchParams.get('roomId');
-  const initialCheckIn = searchParams.get('checkIn') || '';
-  const initialCheckOut = searchParams.get('checkOut') || '';
-  const initialGuests = searchParams.get('guests') || '2';
+  const initialAcademicYear = searchParams.get('academicYear') || '2026-2027';
+  const initialSemester = searchParams.get('semester') || 'Fall 2026';
+  const initialMessPlan = searchParams.get('messPlan') || 'Standard 4-Meal Plan';
 
   const [room, setRoom] = useState(null);
   const [loadingRoom, setLoadingRoom] = useState(true);
   const [error, setError] = useState(null);
 
   // Form State
-  const [checkIn, setCheckIn] = useState(initialCheckIn);
-  const [checkOut, setCheckOut] = useState(initialCheckOut);
-  const [guests, setGuests] = useState(initialGuests);
+  const [academicYear, setAcademicYear] = useState(initialAcademicYear);
+  const [semester, setSemester] = useState(initialSemester);
+  const [messPlan, setMessPlan] = useState(initialMessPlan);
+  const [checkIn, setCheckIn] = useState('2026-08-01');
+  const [checkOut, setCheckOut] = useState('2026-12-20');
   const [specialRequests, setSpecialRequests] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('Demo Visa Infinite');
+  const [paymentMethod, setPaymentMethod] = useState('University Fee Portal Simulator');
 
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingConfirmed, setBookingConfirmed] = useState(null);
 
   useEffect(() => {
-    // If not authenticated, redirect to login with callback state
+    // If not authenticated, redirect to login
     if (!isAuthenticated) {
       navigate('/login', { state: { from: { pathname: '/booking', search: searchParams.toString() } } });
       return;
     }
 
     if (!roomId) {
-      setError('Please select a room to reserve.');
+      setError('Please select a hostel room to apply for bed allocation.');
       setLoadingRoom(false);
       return;
-    }
-
-    // Set fallback dates if not set
-    if (!checkIn || !checkOut) {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const future = new Date();
-      future.setDate(future.getDate() + 4);
-      if (!checkIn) setCheckIn(tomorrow.toISOString().split('T')[0]);
-      if (!checkOut) setCheckOut(future.toISOString().split('T')[0]);
     }
 
     const fetchRoom = async () => {
@@ -69,12 +62,9 @@ const BookingPage = () => {
         const res = await roomService.getRoomById(roomId);
         if (res.data?.success) {
           setRoom(res.data.data);
-          if (res.data.data.capacity < Number(guests)) {
-            setGuests(String(res.data.data.capacity));
-          }
         }
       } catch (err) {
-        setError(err.friendlyMessage || 'Room not found.');
+        setError(err.friendlyMessage || 'Hostel room not found.');
       } finally {
         setLoadingRoom(false);
       }
@@ -83,22 +73,17 @@ const BookingPage = () => {
     fetchRoom();
   }, [roomId, isAuthenticated]);
 
-  // Live calculation
-  const calculatePricing = () => {
-    if (!room || !checkIn || !checkOut) return { nights: 0, roomPrice: 0, taxes: 0, total: 0 };
-    const d1 = new Date(checkIn);
-    const d2 = new Date(checkOut);
-    if (isNaN(d1) || isNaN(d2) || d2 <= d1) return { nights: 0, roomPrice: 0, taxes: 0, total: 0 };
-
-    const diff = Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24));
-    const nights = Math.max(1, diff);
-    const roomPrice = nights * room.pricePerNight;
-    const taxes = Math.round(roomPrice * 0.12);
-    const total = roomPrice + taxes;
-    return { nights, roomPrice, taxes, total };
+  // Fee calculation
+  const calculateFees = () => {
+    if (!room) return { roomFee: 0, messFee: 0, cautionDeposit: 100, total: 100 };
+    const roomFee = room.pricePerNight || 750;
+    const messFee = messPlan === 'Standard 4-Meal Plan' ? 200 : messPlan === 'Special Diet / Non-Veg' ? 300 : 0;
+    const cautionDeposit = 100;
+    const total = roomFee + messFee + cautionDeposit;
+    return { roomFee, messFee, cautionDeposit, total };
   };
 
-  const pricing = calculatePricing();
+  const fees = calculateFees();
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
@@ -108,9 +93,11 @@ const BookingPage = () => {
     try {
       const payload = {
         roomId: room._id,
+        academicYear,
+        semester,
+        messPlan,
         checkIn,
         checkOut,
-        guests: Number(guests),
         specialRequests: specialRequests.trim(),
         paymentMethod,
       };
@@ -120,7 +107,7 @@ const BookingPage = () => {
         setBookingConfirmed(res.data.data);
       }
     } catch (err) {
-      setError(err.friendlyMessage || 'Reservation could not be completed.');
+      setError(err.friendlyMessage || 'Bed allocation application could not be processed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -161,15 +148,15 @@ const BookingPage = () => {
             </div>
 
             <span className="badge badge-success" style={{ marginBottom: '12px' }}>
-              Reservation Confirmed
+              Hostel Allocation Confirmed
             </span>
 
             <h1 style={{ fontSize: '2.4rem', marginBottom: '12px' }}>
-              We Look Forward to Welcoming You
+              Bed Successfully Allocated!
             </h1>
 
             <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', marginBottom: '32px' }}>
-              Your reservation voucher has been created. A confirmation summary is linked to your guest account.
+              Your hostel room and bed allocation voucher has been officially issued by the Chief Warden Office.
             </p>
 
             {/* Voucher Box */}
@@ -189,35 +176,35 @@ const BookingPage = () => {
                 marginBottom: '16px',
               }}>
                 <div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Booking Reference</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Allocation Reference</div>
                   <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#FBBF24', letterSpacing: '0.05em' }}>
                     {bookingConfirmed.bookingReference}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Payment Status</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Admission Status</div>
                   <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#34D399' }}>
-                    ● Paid (Demo Simulation)
+                    ● Approved / Active Resident
                   </div>
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px', fontSize: '0.9rem' }}>
                 <div>
-                  <span style={{ color: 'var(--text-muted)' }}>Reserved Suite:</span>
+                  <span style={{ color: 'var(--text-muted)' }}>Assigned Dorm:</span>
                   <div style={{ fontWeight: 600, color: '#FFFFFF' }}>{room.name} (#{room.roomNumber})</div>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-muted)' }}>Guests:</span>
-                  <div style={{ fontWeight: 600, color: '#FFFFFF' }}>{bookingConfirmed.guests} Guests</div>
+                  <span style={{ color: 'var(--text-muted)' }}>Hostel Block:</span>
+                  <div style={{ fontWeight: 600, color: '#FFFFFF' }}>{room.block}</div>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-muted)' }}>Check-In:</span>
-                  <div style={{ fontWeight: 600, color: '#FFFFFF' }}>{new Date(bookingConfirmed.checkIn).toLocaleDateString()}</div>
+                  <span style={{ color: 'var(--text-muted)' }}>Term & Session:</span>
+                  <div style={{ fontWeight: 600, color: '#FFFFFF' }}>{bookingConfirmed.semester || semester} ({bookingConfirmed.academicYear || academicYear})</div>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-muted)' }}>Check-Out:</span>
-                  <div style={{ fontWeight: 600, color: '#FFFFFF' }}>{new Date(bookingConfirmed.checkOut).toLocaleDateString()}</div>
+                  <span style={{ color: 'var(--text-muted)' }}>Mess Plan:</span>
+                  <div style={{ fontWeight: 600, color: '#FFFFFF' }}>{bookingConfirmed.messPlan || messPlan}</div>
                 </div>
               </div>
 
@@ -229,17 +216,17 @@ const BookingPage = () => {
                 fontWeight: 700,
                 fontSize: '1.1rem',
               }}>
-                <span>Total Amount Charged:</span>
+                <span>Total Semester Fee Paid:</span>
                 <span style={{ color: '#FBBF24' }}>${bookingConfirmed.totalAmount}</span>
               </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <Link to="/my-bookings" className="btn btn-primary">
-                View in My Bookings
+                View in My Hostel Allocations
               </Link>
               <Link to="/rooms" className="btn btn-secondary">
-                Explore More Suites
+                Explore Other Dorms
               </Link>
             </div>
           </div>
@@ -248,17 +235,19 @@ const BookingPage = () => {
     );
   }
 
+  const availableBeds = room ? (room.capacity - (room.occupiedBeds || 0)) : 0;
+
   return (
     <div style={{ paddingTop: '40px', paddingBottom: '80px' }}>
       <div className="container" style={{ maxWidth: '1000px' }}>
         {/* Title */}
         <div style={{ marginBottom: '32px' }}>
           <span className="badge badge-primary" style={{ marginBottom: '8px' }}>
-            Secure Reservation
+            Hostel Admission Portal
           </span>
-          <h1 style={{ fontSize: '2.4rem', fontWeight: 800 }}>Complete Your Reservation</h1>
+          <h1 style={{ fontSize: '2.4rem', fontWeight: 800 }}>Student Bed Allocation Application</h1>
           <p style={{ color: 'var(--text-secondary)' }}>
-            Confirm your dates, personalize your stay, and simulate instant booking confirmation.
+            Confirm your academic semester, choose dining preferences, and submit your hostel admission with instant verification.
           </p>
         </div>
 
@@ -288,12 +277,39 @@ const BookingPage = () => {
           {/* Left: Form */}
           <form onSubmit={handleBookingSubmit} className="card" style={{ padding: '32px' }}>
             <h2 style={{ fontSize: '1.3rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Calendar size={20} color="#8B5CF6" /> 1. Select Stay Dates
+              <Building2 size={20} color="#8B5CF6" /> 1. Academic Term & Residency Period
             </h2>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label">Academic Year</label>
+                <select
+                  className="form-select"
+                  value={academicYear}
+                  onChange={(e) => setAcademicYear(e.target.value)}
+                >
+                  <option value="2026-2027">2026 - 2027</option>
+                  <option value="2027-2028">2027 - 2028</option>
+                </select>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label">Semester Term</label>
+                <select
+                  className="form-select"
+                  value={semester}
+                  onChange={(e) => setSemester(e.target.value)}
+                >
+                  <option value="Fall 2026">Fall Semester 2026</option>
+                  <option value="Spring 2027">Spring Semester 2027</option>
+                  <option value="Summer 2027">Summer Immersion 2027</option>
+                </select>
+              </div>
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Check-In Date</label>
+                <label className="form-label">Hostel Check-In Date</label>
                 <input
                   type="date"
                   className="form-input"
@@ -304,7 +320,7 @@ const BookingPage = () => {
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Check-Out Date</label>
+                <label className="form-label">Hostel Check-Out Date</label>
                 <input
                   type="date"
                   className="form-input"
@@ -315,34 +331,36 @@ const BookingPage = () => {
               </div>
             </div>
 
+            <h2 style={{ fontSize: '1.3rem', marginTop: '28px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <UtensilsCrossed size={20} color="#8B5CF6" /> 2. Mess Plan & Medical Notes
+            </h2>
+
             <div className="form-group">
-              <label className="form-label">Guests (Capacity: {room?.capacity || 2} Max)</label>
+              <label className="form-label">Campus Mess Subscription</label>
               <select
                 className="form-select"
-                value={guests}
-                onChange={(e) => setGuests(e.target.value)}
+                value={messPlan}
+                onChange={(e) => setMessPlan(e.target.value)}
               >
-                {[...Array(room?.capacity || 2)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1} {i === 0 ? 'Guest' : 'Guests'}
-                  </option>
-                ))}
+                <option value="Standard 4-Meal Plan">Standard 4-Meal Buffet (+$200/sem)</option>
+                <option value="Special Diet / Non-Veg">Special Diet & Non-Veg (+$300/sem)</option>
+                <option value="No Mess Plan">Room Only (Self Managed / No Mess)</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Special Requests & In-Room Amenities (Optional)</label>
+              <label className="form-label">Medical Conditions / Roommate Preference (Optional)</label>
               <textarea
                 className="form-textarea"
                 rows="3"
-                placeholder="e.g. Airport chauffeur arrival time, feather pillows, chilled champagne..."
+                placeholder="e.g. Lower bunk preference, asthma, dust allergies, study-focused roommate..."
                 value={specialRequests}
                 onChange={(e) => setSpecialRequests(e.target.value)}
               />
             </div>
 
             <h2 style={{ fontSize: '1.3rem', marginTop: '32px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CreditCard size={20} color="#8B5CF6" /> 2. Demo Payment Simulation
+              <CreditCard size={20} color="#8B5CF6" /> 3. Fee Payment Simulation
             </h2>
 
             <div style={{
@@ -358,47 +376,46 @@ const BookingPage = () => {
             }}>
               <Lock size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
               <div>
-                <strong>Academic Demo Environment:</strong> No real credit cards or financial transactions are processed. Select a demo instrument below to simulate instant payment authorization.
+                <strong>Academic Demo Simulation:</strong> This fee checkout simulates the university student bursar gateway. Select a demo payment mode below to process immediate confirmation.
               </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Simulated Payment Method</label>
+              <label className="form-label">Payment Channel</label>
               <select
                 className="form-select"
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               >
-                <option value="Demo Visa Infinite">Demo Visa Infinite (Ending in •••• 4242)</option>
-                <option value="Demo Mastercard World Elite">Demo Mastercard World Elite (Ending in •••• 5555)</option>
-                <option value="Demo Amex Centurion">Demo American Express Centurion</option>
-                <option value="Demo Instant UPI Pay">Demo Instant UPI Simulator</option>
+                <option value="University Fee Portal Simulator">University Fee Portal Simulator (Direct Student Account)</option>
+                <option value="Demo NetBanking / UPI">Demo NetBanking / UPI Campus Pay</option>
+                <option value="Demo Scholarship Waiver">Demo Merit Scholarship Fee Waiver</option>
               </select>
             </div>
 
             <button
               type="submit"
-              disabled={isSubmitting || pricing.nights <= 0}
+              disabled={isSubmitting || availableBeds <= 0}
               className="btn btn-primary btn-lg"
               style={{ width: '100%', marginTop: '16px' }}
             >
               {isSubmitting ? (
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div className="spinner" style={{ width: '20px', height: '20px' }} />
-                  Processing Reservation...
+                  Allocating Bed...
                 </span>
               ) : (
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Sparkles size={18} /> Confirm Reservation (${pricing.total})
+                  <Sparkles size={18} /> Confirm Bed Allocation (${fees.total})
                 </span>
               )}
             </button>
           </form>
 
-          {/* Right: Suite Summary Card */}
+          {/* Right: Dorm Summary Card */}
           {room && (
             <div className="card" style={{ padding: '24px' }}>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>Reservation Summary</h3>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>Hostel Dorm Summary</h3>
               <div style={{
                 height: '180px',
                 borderRadius: 'var(--radius-md)',
@@ -406,7 +423,7 @@ const BookingPage = () => {
                 marginBottom: '16px',
               }}>
                 <img
-                  src={room.images[0]}
+                  src={room.images?.[0] || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80'}
                   alt={room.name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
@@ -414,9 +431,12 @@ const BookingPage = () => {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
                 <h4 style={{ fontSize: '1.15rem' }}>{room.name}</h4>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>#{room.roomNumber}</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Room #{room.roomNumber}</span>
               </div>
-              <span className="badge badge-primary" style={{ marginBottom: '16px' }}>{room.category}</span>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                <span className="badge badge-primary">{room.block}</span>
+                <span className="badge badge-secondary">{room.gender} Wing</span>
+              </div>
 
               {/* Price Details */}
               <div style={{
@@ -428,20 +448,18 @@ const BookingPage = () => {
                 fontSize: '0.9rem',
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Rate per night</span>
-                  <span>${room.pricePerNight}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>Semester Room Fee</span>
+                  <span>${fees.roomFee}</span>
                 </div>
+                {fees.messFee > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Mess Plan Subscription</span>
+                    <span>${fees.messFee}</span>
+                  </div>
+                )}
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Duration of stay</span>
-                  <span>{pricing.nights} {pricing.nights === 1 ? 'Night' : 'Nights'}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Room Subtotal</span>
-                  <span>${pricing.roomPrice}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Luxury Tax & Fees (12%)</span>
-                  <span>${pricing.taxes}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>Refundable Caution Deposit</span>
+                  <span>${fees.cautionDeposit}</span>
                 </div>
                 <div style={{
                   display: 'flex',
@@ -451,9 +469,21 @@ const BookingPage = () => {
                   fontWeight: 800,
                   fontSize: '1.2rem',
                 }}>
-                  <span>Total Amount</span>
-                  <span style={{ color: '#FBBF24' }}>${pricing.total}</span>
+                  <span>Total Semester Fee</span>
+                  <span style={{ color: '#FBBF24' }}>${fees.total}</span>
                 </div>
+              </div>
+
+              <div style={{
+                marginTop: '20px',
+                padding: '12px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.8rem',
+                color: 'var(--text-muted)',
+              }}>
+                <div style={{ fontWeight: 600, color: '#C4B5FD', marginBottom: '4px' }}>Warden Rule:</div>
+                Vacating or bed exchange requests must be filed with the hostel warden office at least 15 days in advance.
               </div>
             </div>
           )}
