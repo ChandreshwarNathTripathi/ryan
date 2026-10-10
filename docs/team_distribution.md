@@ -10,7 +10,7 @@
 
 | Member Name | Role | Primary Responsibilities |
 | :--- | :--- | :--- |
-| **Syed Rayyan** | **Team Leader & Full-Stack Security Lead** | Repository architecture, JWT/RBAC security, Chief Warden operations console, Recharts bed analytics, PR reviews, merge management, cloud deployment coordination, and final capstone submission. |
+| **Syed Rayyan** | **Team Leader & Full-Stack Security Lead** | Repository architecture, JWT/RBAC security, Chief Warden operations console, visual bed analytics, PR reviews, merge management, cloud deployment coordination, and final capstone submission. |
 | **Member 2** | **Frontend UI/UX Developer** | Modern hostel responsive UI design system, Home page, Hostel Dorms catalog, Dorm details, bed vacancy indicators, and student portal styling. |
 | **Member 3** | **Backend & Database Developer** | MongoDB Atlas integration, Mongoose schemas (Hostel Block, Bed Capacity, Student ID, Guardian Contacts), Dorm CRUD REST APIs, centralized error handling, and automated test suite. |
 | **Member 4** | **Hostel Allocation & Integrations Developer** | Bed allotment engine, capacity and date conflict prevention (HTTP 409 Conflict), semester fee calculation, student mess plan subscription, and resident feedback system. |
@@ -30,7 +30,7 @@ Each team member is assigned primary ownership of distinct issues and contribute
 | **#5** | Hostel Dormitory Management & Bed CRUD | **Member 3** | Member 2 | `feature/room-crud` | PR #5: Block & bed CRUD endpoints |
 | **#6** | Bed Allocation Engine & Conflict Prevention | **Member 4** | Member 3 | `feature/booking-system` | PR #6: Bed allotment & semester fee calculation |
 | **#7** | Student Profiles, History & Reviews | **Member 4** | Member 2 | `feature/profiles-reviews` | PR #7: Student portal & resident reviews |
-| **#8** | Warden Dashboard & Bed Occupancy Analytics | **Syed Rayyan** | Member 2, Member 4 | `feature/admin-dashboard` | PR #8: Recharts analytics & allocation ledger |
+| **#8** | Warden Dashboard & Bed Occupancy Analytics | **Syed Rayyan** | Member 2, Member 4 | `feature/admin-dashboard` | PR #8: Visual analytics & allocation ledger |
 | **#9** | Automated Testing & Complete Documentation | **Member 3** | Syed Rayyan | `feature/testing-documentation` | PR #9: 18-point API verification suite & docs |
 | **#10** | GitHub Collaboration & Cloud Deployment | **Syed Rayyan** | All Members | `feature/collaboration-deployment` | PR #10: Production deployment guide |
 

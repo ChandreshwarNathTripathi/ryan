@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '../router';
 import { roomService, reviewService } from '../services/api';
 import {
   Building2,
@@ -16,7 +16,7 @@ import {
   CheckCircle2,
   BookOpen,
   Zap,
-} from 'lucide-react';
+} from '../components/Icons';
 
 const Home = () => {
   const navigate = useNavigate();

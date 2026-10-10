@@ -12,7 +12,7 @@ import {
   CheckCircle2,
   X,
   BedDouble,
-} from 'lucide-react';
+} from '../../components/Icons';
 
 const AdminRooms = () => {
   const [rooms, setRooms] = useState([]);

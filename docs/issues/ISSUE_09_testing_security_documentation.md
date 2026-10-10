@@ -37,7 +37,7 @@ The test script must execute against `http://localhost:5000` using native Node.j
 15. **Test 15: Bed Vacating / Cancellation** — `PATCH /api/bookings/:id/cancel` marks allocation vacated and releases bed counter.
 16. **Test 16: Student Room Review** — `POST /api/rooms/:id/reviews` submits rating and comment (HTTP 201).
 17. **Test 17: Safe Dormitory Deletion** — `DELETE /api/rooms/:id` removes test room when no active allocations exist (HTTP 200).
-18. **Test 18: Warden 6-Month Visual Analytics** — `GET /api/admin/analytics` returns monthly fee collection array for Recharts.
+18. **Test 18: Warden 6-Month Visual Analytics** — `GET /api/admin/analytics` returns monthly fee collection array for visual analytics.
 
 ---
 

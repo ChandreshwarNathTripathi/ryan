@@ -1,38 +1,49 @@
-import axios from 'axios';
-
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
+async function request(endpoint, options = {}) {
+  const token = localStorage.getItem('xshotel_token');
+  const headers = {
     'Content-Type': 'application/json',
-  },
-});
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
 
-// Auto-attach authorization JWT token if available
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('xshotel_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor for centralized error message extraction
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      'An unexpected error occurred. Please try again.';
-    error.friendlyMessage = message;
-    return Promise.reject(error);
+  let url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  if (options.params) {
+    const query = new URLSearchParams(options.params).toString();
+    if (query) url += `${url.includes('?') ? '&' : '?'}${query}`;
   }
-);
+
+  const response = await fetch(url, {
+    method: options.method || 'GET',
+    headers,
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (err) {
+    data = null;
+  }
+
+  if (!response.ok) {
+    const error = new Error(data?.message || `HTTP error! status: ${response.status}`);
+    error.response = { data, status: response.status };
+    error.friendlyMessage = data?.message || 'An unexpected error occurred. Please try again.';
+    throw error;
+  }
+
+  return { data };
+}
+
+const api = {
+  get: (endpoint, options = {}) => request(endpoint, { ...options, method: 'GET' }),
+  post: (endpoint, body, options = {}) => request(endpoint, { ...options, method: 'POST', body }),
+  put: (endpoint, body, options = {}) => request(endpoint, { ...options, method: 'PUT', body }),
+  patch: (endpoint, body, options = {}) => request(endpoint, { ...options, method: 'PATCH', body }),
+  delete: (endpoint, options = {}) => request(endpoint, { ...options, method: 'DELETE' }),
+};
 
 // 1. Auth Services
 export const authService = {

@@ -30,7 +30,7 @@
 
 XSHostel delivers a dual-interface architecture:
 1. **Public Student Resident Portal**: High-tech campus website showcasing hostel blocks (Block A Boys, Block B Girls, Block C Scholars), real-time bed vacancy search, transparent semester fee & mess plan calculation, verified resident feedback, step-by-step bed allocation application, and student room management.
-2. **Protected Chief Warden Administration Console**: Operations analytics dashboard with Recharts visualizations (6-month fee collections and dorm block distribution), dorm catalog management (CRUD), bed allocation status ledger, student & staff directory with roll numbers and guardian contacts, review moderation, and hostel curfew policies.
+2. **Protected Chief Warden Administration Console**: Operations analytics dashboard with pure SVG visualizations (6-month fee collections and dorm block distribution), dorm catalog management (CRUD), bed allocation status ledger, student & staff directory with roll numbers and guardian contacts, review moderation, and hostel curfew policies.
 
 ```mermaid
 graph TD
@@ -60,12 +60,12 @@ graph TD
 ## 💻 Technology Stack
 
 ### Frontend
-- **Framework:** React.js 18 with Vite build tooling
-- **Routing:** React Router DOM v6
+- **Framework:** React.js 18 with Vite build tooling (Zero bloated UI dependencies)
+- **Routing:** Pure Native React Router with custom History State & Location context
 - **State Management:** React Context API (`AuthContext`)
-- **HTTP Client:** Axios with centralized Bearer token interceptor
-- **Icons:** Lucide React icons (`Building2`, `Users`, `ShieldCheck`, `UtensilsCrossed`, `Zap`, `Wifi`, etc.)
-- **Analytics & Visualizations:** Recharts (`AreaChart`, `BarChart`, `ResponsiveContainer`)
+- **HTTP Client:** Native Browser Fetch API with centralized Bearer token interceptor
+- **Icons:** Pure SVG React Icon Components (`Building2`, `Users`, `ShieldCheck`, `UtensilsCrossed`, `Zap`, `Wifi`, etc.)
+- **Analytics & Visualizations:** Pure SVG & CSS dynamic visual charts (6-Month Area Graph & Block Distribution Bars)
 - **Styling:** Custom Vanilla CSS with CSS Custom Properties (Dark Navy, Midnight Blue, Electric Violet accents, Glassmorphism)
 
 ### Backend
@@ -100,7 +100,7 @@ xshostel/
 │   │   │   ├── MyBookings.jsx   # My Hostel Allocations ledger & room vacating request
 │   │   │   ├── Profile.jsx      # Student profile, roll ID, degree course, guardian contacts
 │   │   │   └── NotFound.jsx     # Campus branded 404 page
-│   │   ├── services/            # Axios API client (auth, room, booking, review, user, admin)
+│   │   ├── services/            # Fetch API client (auth, room, booking, review, user, admin)
 │   │   ├── styles/              # index.css design system tokens
 │   │   ├── App.jsx              # Application router hierarchy
 │   │   └── main.jsx             # React entry point
@@ -155,7 +155,7 @@ The development lifecycle is divided into exactly **10 comprehensive GitHub Issu
 | **5** | Hostel Dormitory Management & Bed CRUD | **Member 3** | Dorm CRUD REST APIs, duplicate room check, warden dorms UI, Add/Edit modals, bed capacity limits. | [ISSUE #5](./docs/issues/ISSUE_05_room_management_crud.md) |
 | **6** | Bed Allocation Engine & Conflict Prevention | **Member 4** | Server-side pricing, overlap & bed capacity conflict detection (`409 Conflict`), mess plan subscription. | [ISSUE #6](./docs/issues/ISSUE_06_booking_system_availability.md) |
 | **7** | Student Profiles, History & Reviews | **Member 4** | Student profile editing with roll ID & guardian contact, My Allocations history, room vacating request, reviews. | [ISSUE #7](./docs/issues/ISSUE_07_user_profiles_history_reviews.md) |
-| **8** | Warden Dashboard & Bed Occupancy Analytics | **Syed Rayyan** | Recharts AreaChart & BarChart, KPI cards, recent allocations, allocation status updater, student directory. | [ISSUE #8](./docs/issues/ISSUE_08_admin_dashboard_analytics.md) |
+| **8** | Warden Dashboard & Bed Occupancy Analytics | **Syed Rayyan** | Pure SVG AreaGraph & BarGraph, KPI cards, recent allocations, allocation status updater, student directory. | [ISSUE #8](./docs/issues/ISSUE_08_admin_dashboard_analytics.md) |
 | **9** | Testing, Security & Complete Documentation | **Member 3** | 18-point automated API test suite, security audit (hash exclusion, ownership checks), comprehensive documentation. | [ISSUE #9](./docs/issues/ISSUE_09_testing_security_documentation.md) |
 | **10** | GitHub Collaboration & Deployment | **Syed Rayyan** | 4-member Git feature branch strategy, pull request workflow, Vercel & Render deployment guides. | [ISSUE #10](./docs/issues/ISSUE_10_collaboration_deployment.md) |
 
@@ -222,7 +222,7 @@ All endpoints return uniform JSON responses: `{ success: true|false, data: ..., 
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/admin/stats` | Warden Only | Aggregated metrics (Fee collections, beds, allocation counts, students) |
-| `GET` | `/api/admin/analytics` | Warden Only | 6-month fee collections and room category distribution for Recharts |
+| `GET` | `/api/admin/analytics` | Warden Only | 6-month fee collections and room category distribution for visual analytics |
 | `GET` | `/api/users` | Warden Only | List registered students with roll numbers and allocation counts |
 | `GET` | `/api/users/:id` | Warden / Self | Inspect student details |
 | `PATCH` | `/api/users/:id` | Warden Only | Toggle active resident status or assign warden role |

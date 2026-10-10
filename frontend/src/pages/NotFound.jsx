@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Building2, Compass, Home, BedDouble } from 'lucide-react';
+import { Link } from '../router';
+import { Building2, Compass, Home, BedDouble } from '../components/Icons';
 
 const NotFound = () => {
   return (

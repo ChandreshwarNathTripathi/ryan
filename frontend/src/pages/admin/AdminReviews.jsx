@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { reviewService } from '../../services/api';
-import { MessageSquare, Star, Check, X, Trash2, Building2 } from 'lucide-react';
+import { MessageSquare, Star, Check, X, Trash2, Building2 } from '../../components/Icons';
 
 const AdminReviews = () => {
   const [reviews, setReviews] = useState([]);

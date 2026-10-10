@@ -50,7 +50,7 @@ Configure the following CSS variables in `:root`:
 ## 4. Component Implementation Guide
 
 ### A. Navigation Bar (`src/components/Navbar.jsx`)
-- **Logo:** `Building2` icon from `lucide-react` + text **XSHostel** with a subtle violet gradient.
+- **Logo:** `Building2` SVG icon component + text **XSHostel** with a subtle violet gradient.
 - **Navigation Links:**
   - `Home` (`/`)
   - `Hostel Dorms` (`/rooms`)

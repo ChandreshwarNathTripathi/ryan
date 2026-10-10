@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { userService } from '../../services/api';
-import { Users, Search, Shield, UserCheck, UserX, AlertCircle, BookOpen, Phone } from 'lucide-react';
+import { Users, Search, Shield, UserCheck, UserX, AlertCircle, BookOpen, Phone } from '../../components/Icons';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);

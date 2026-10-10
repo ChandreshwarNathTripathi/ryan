@@ -1,11 +1,11 @@
-# Issue #8: Chief Warden Operations Console & Recharts Visual Analytics
+# Issue #8: Chief Warden Operations Console & Pure SVG Visual Analytics
 
 ## Metadata
 - **Issue ID:** #8
 - **Branch Name:** `feature/admin-dashboard`
 - **Assigned Developer:** **Syed Rayyan (Team Leader)**
-- **Supporting Developers:** **Member 2 (Frontend Recharts)** & **Member 3 (Backend Aggregations)**
-- **Target PR:** `PR #8: Chief Warden Console & Recharts Analytics -> main`
+- **Supporting Developers:** **Member 2 (Frontend Visual Analytics)** & **Member 3 (Backend Aggregations)**
+- **Target PR:** `PR #8: Chief Warden Console & Pure SVG Visual Analytics -> main`
 - **Prerequisite:** Issues #1 through #7 merged
 - **Estimated Effort:** 10 Hours | **Difficulty:** Advanced
 
@@ -14,7 +14,7 @@
 ## 1. Objective & Goal
 Build the Chief Warden Administrative Console (`/admin`):
 1. **Backend:** Aggregation APIs for hostel metrics, 6-month fee collections, block room distributions, student directory, and disciplinary account suspension.
-2. **Frontend:** Comprehensive admin layout with Recharts interactive charts (6-Month Bursar Fee Collections, Block Bed Distributions), Room CRUD modal manager, Allocations ledger, Student Directory, and Hostel Curfew Settings.
+2. **Frontend:** Comprehensive admin layout with pure SVG & CSS interactive charts (6-Month Bursar Fee Collections Area Graph, Block Bed Distribution Bars), Room CRUD modal manager, Allocations ledger, Student Directory, and Hostel Curfew Settings.
 
 ---
 
@@ -25,7 +25,7 @@ Mounted under `/api/admin` (Enforces `protect` and `admin` middlewares):
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
 | **GET** | `/api/admin/stats` | Warden Only | Returns metric cards: Total Rooms, Total Beds, Occupied Beds, Vacant Beds, Occupancy Rate (%), Active Students, Total Revenue |
-| **GET** | `/api/admin/analytics` | Warden Only | Returns 6-month monthly revenue array and block distribution array for Recharts charts |
+| **GET** | `/api/admin/analytics` | Warden Only | Returns 6-month monthly revenue array and block distribution array for SVG charts |
 | **GET** | `/api/admin/users` | Warden Only | List all students and staff with search and role filters |
 | **PATCH** | `/api/admin/users/:id/toggle-status` | Warden Only | Toggle student account active/suspended status |
 
@@ -76,10 +76,10 @@ const blockStats = await Room.aggregate([
   - Current Occupancy Rate `%` (`TrendingUp` icon)
   - Active Resident Students (`Users` icon)
   - Total Semester Fees Collected (`IndianRupee` icon)
-- **Recharts Chart 1 (AreaChart):**
+- **Pure SVG Area Chart (AreaGraph):**
   - **Title:** *"6-Month Fee Collections & Bursar Inflow"*
-  - Displays gradient violet area chart with X-Axis (Month), Y-Axis (INR Amount), and custom Tooltip formatting currency.
-- **Recharts Chart 2 (BarChart):**
+  - Displays gradient violet area graph with SVG coordinates, dynamic points, and monthly values.
+- **Pure CSS/SVG Bar Chart (BarGraph):**
   - **Title:** *"Hostel Block Capacity & Bed Utilization"*
   - Displays grouped bars comparing Total Beds vs Occupied Beds across Block A, Block B, Block C.
 
@@ -108,7 +108,7 @@ const blockStats = await Room.aggregate([
 
 ## 4. Acceptance Criteria & Definition of Done
 - [ ] Non-admin students navigating to `/admin` are redirected to `/` with error notification.
-- [ ] Recharts properly renders both the AreaChart and BarChart without console errors.
+- [ ] Pure SVG and CSS visual charts render dynamically without third-party chart dependencies.
 - [ ] Warden can create a new dormitory room and immediately view it in the catalog.
 - [ ] Updating allocation status immediately updates the database.
 - [ ] Syed Rayyan reviews and merges PR #8.

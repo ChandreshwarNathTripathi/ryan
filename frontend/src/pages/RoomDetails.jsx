@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from '../router';
 import { roomService, reviewService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -16,7 +16,7 @@ import {
   Send,
   AlertCircle,
   UtensilsCrossed,
-} from 'lucide-react';
+} from '../components/Icons';
 
 const RoomDetails = () => {
   const { id } = useParams();

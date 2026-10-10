@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from '../router';
 import { useAuth } from '../context/AuthContext';
 import {
   Building2,
@@ -11,7 +11,7 @@ import {
   X,
   ChevronDown,
   Sparkles,
-} from 'lucide-react';
+} from './Icons';
 
 const Navbar = () => {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();

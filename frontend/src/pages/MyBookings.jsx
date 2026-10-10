@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '../router';
 import { bookingService } from '../services/api';
 import {
   Calendar,
@@ -13,7 +13,7 @@ import {
   BedDouble,
   DollarSign,
   UtensilsCrossed,
-} from 'lucide-react';
+} from '../components/Icons';
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);

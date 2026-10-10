@@ -9,7 +9,7 @@
 | Member | Designated Role | Primary Focus | Issues Assigned |
 | :--- | :--- | :--- | :--- |
 | **Syed Rayyan** | **Team Leader & Full-Stack Lead** | Architecture, security, JWT/RBAC, PR reviews, merge management, Warden console, and final deployment. | **#1**, **#3**, **#8**, **#10** |
-| **Member 2** | **Frontend UI/UX Specialist** | CSS design system, responsive navigation, Home page, Dorm catalog filters, details gallery, and Recharts charts. | **#4**, **#5 (UI)**, **#7 (UI)**, **#8 (UI)** |
+| **Member 2** | **Frontend UI/UX Specialist** | CSS design system, responsive navigation, Home page, Dorm catalog filters, details gallery, and pure SVG visual charts. | **#4**, **#5 (UI)**, **#7 (UI)**, **#8 (UI)** |
 | **Member 3** | **Backend & Database Specialist** | MongoDB Mongoose schemas, Dorm CRUD REST APIs, database seeder, error middleware, and 18-point automated test suite. | **#2**, **#5 (API)**, **#8 (API)**, **#9** |
 | **Member 4** | **Hostel Allocation Specialist** | Bed allocation engine, overlap & overcapacity conflict prevention (`409 Conflict`), bursar fee calculation, and student portal. | **#6**, **#7 (Portal)** |
 
@@ -37,7 +37,7 @@ flowchart TD
     end
 
     subgraph Phase 4 [Phase 4: Chief Warden Operations Console]
-        I7 --> I8["Issue #8: Warden Console & Recharts Analytics (Syed Rayyan & Team)"]
+        I7 --> I8["Issue #8: Warden Console & Visual Analytics (Syed Rayyan & Team)"]
     end
 
     subgraph Phase 5 [Phase 5: Automated Testing & Cloud Launch]
@@ -112,7 +112,7 @@ flowchart TD
 | **#5** | Dorms CRUD & Catalog | `feature/room-crud` | Member 3 & M2 | `git checkout -b feature/room-crud` |
 | **#6** | Allocation Engine & Conflicts | `feature/booking-system` | Member 4 | `git checkout -b feature/booking-system` |
 | **#7** | Student Portal & Vacating | `feature/profiles-reviews` | Member 4 & M2 | `git checkout -b feature/profiles-reviews` |
-| **#8** | Warden Console & Recharts | `feature/admin-dashboard` | Syed Rayyan & Team | `git checkout -b feature/admin-dashboard` |
+| **#8** | Warden Console & Visual Analytics | `feature/admin-dashboard` | Syed Rayyan & Team | `git checkout -b feature/admin-dashboard` |
 | **#9** | 18 Automated API Tests | `feature/testing-documentation` | Member 3 & Lead | `git checkout -b feature/testing-documentation` |
 | **#10** | Cloud Deployment & Handover | `feature/collaboration-deployment` | Syed Rayyan & All | `git checkout -b feature/collaboration-deployment` |
 

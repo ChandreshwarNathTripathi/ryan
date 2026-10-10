@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '../../router';
 import { adminService, bookingService } from '../../services/api';
 import {
   Building2,
@@ -13,18 +13,7 @@ import {
   ArrowRight,
   ShieldAlert,
   BedDouble,
-} from 'lucide-react';
-import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from 'recharts';
+} from '../../components/Icons';
 
 const AdminOverview = () => {
   const [stats, setStats] = useState(null);
@@ -184,30 +173,45 @@ const AdminOverview = () => {
             <span className="badge badge-primary"><TrendingUp size={12} /> Fee Analytics</span>
           </div>
 
-          <div style={{ width: '100%', height: '260px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={analytics?.monthlyRevenue || []}>
-                <defs>
-                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" />
-                <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={12} />
-                <YAxis stroke="var(--text-muted)" fontSize={12} tickFormatter={(v) => `$${v}`} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#111827',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                    borderRadius: '8px',
-                    color: '#FFFFFF',
-                  }}
-                  formatter={(val) => [`$${val.toLocaleString()}`, 'Collections']}
-                />
-                <Area type="monotone" dataKey="revenue" stroke="#8B5CF6" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div style={{ width: '100%', height: '260px', position: 'relative' }}>
+            {(!analytics?.monthlyRevenue || analytics.monthlyRevenue.length === 0) ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)' }}>
+                No revenue records available
+              </div>
+            ) : (() => {
+              const data = analytics.monthlyRevenue;
+              const maxRev = Math.max(...data.map(d => d.revenue), 1000);
+              const points = data.map((d, i) => {
+                const x = 40 + (i / Math.max(data.length - 1, 1)) * 420;
+                const y = 210 - (d.revenue / maxRev) * 160;
+                return { x, y, ...d };
+              });
+              const pathD = points.reduce((acc, p, i) => i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`, '');
+              const areaD = `${pathD} L ${points[points.length - 1].x} 230 L ${points[0].x} 230 Z`;
+
+              return (
+                <svg viewBox="0 0 500 260" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                  <defs>
+                    <linearGradient id="pureRevGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.6" />
+                      <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.02" />
+                    </linearGradient>
+                  </defs>
+                  {[0.25, 0.5, 0.75, 1].map((ratio, idx) => (
+                    <line key={idx} x1="40" y1={230 - ratio * 180} x2="480" y2={230 - ratio * 180} stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
+                  ))}
+                  <path d={areaD} fill="url(#pureRevGrad)" />
+                  <path d={pathD} fill="none" stroke="#8B5CF6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  {points.map((p, i) => (
+                    <g key={i}>
+                      <circle cx={p.x} cy={p.y} r="5" fill="#8B5CF6" stroke="#121A2D" strokeWidth="2" />
+                      <text x={p.x} y="250" textAnchor="middle" fill="#94A3B8" fontSize="11">{p.month}</text>
+                      <text x={p.x} y={p.y - 10} textAnchor="middle" fill="#FFFFFF" fontSize="11" fontWeight="bold">₹{(p.revenue / 1000).toFixed(0)}k</text>
+                    </g>
+                  ))}
+                </svg>
+              );
+            })()}
           </div>
         </div>
 
@@ -221,24 +225,36 @@ const AdminOverview = () => {
             <span className="badge badge-gold"><Building2 size={12} /> Hall Inventory</span>
           </div>
 
-          <div style={{ width: '100%', height: '260px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analytics?.roomCategories || []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" />
-                <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={11} interval={0} />
-                <YAxis stroke="var(--text-muted)" fontSize={12} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#111827',
-                    border: '1px solid rgba(245, 158, 11, 0.3)',
-                    borderRadius: '8px',
-                    color: '#FFFFFF',
-                  }}
-                  formatter={(val) => [`${val} Dorms`, 'Inventory']}
-                />
-                <Bar dataKey="count" fill="#F59E0B" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div style={{ width: '100%', height: '260px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', gap: '16px', padding: '20px 10px 0' }}>
+            {(!analytics?.roomCategories || analytics.roomCategories.length === 0) ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', color: 'var(--text-muted)' }}>
+                No category records available
+              </div>
+            ) : (() => {
+              const maxCount = Math.max(...analytics.roomCategories.map(c => c.count), 1);
+              return analytics.roomCategories.map((cat, idx) => {
+                const heightPct = Math.max((cat.count / maxCount) * 100, 15);
+                return (
+                  <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#F59E0B', marginBottom: '8px' }}>
+                      {cat.count}
+                    </span>
+                    <div style={{
+                      width: '100%',
+                      maxWidth: '52px',
+                      height: `${heightPct * 0.72}%`,
+                      background: 'linear-gradient(180deg, #F59E0B 0%, #D97706 100%)',
+                      borderRadius: '6px 6px 0 0',
+                      transition: 'height 0.4s ease',
+                      boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)'
+                    }} />
+                    <span style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '10px', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px' }} title={cat.name}>
+                      {cat.name}
+                    </span>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       </div>

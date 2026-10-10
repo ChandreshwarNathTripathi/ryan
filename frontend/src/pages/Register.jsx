@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '../router';
 import { useAuth } from '../context/AuthContext';
-import { Building2, Mail, Lock, User, Phone, BookOpen, AlertCircle, ArrowRight } from 'lucide-react';
+import { Building2, Mail, Lock, User, Phone, BookOpen, AlertCircle, ArrowRight } from '../components/Icons';
 
 const Register = () => {
   const { register } = useAuth();

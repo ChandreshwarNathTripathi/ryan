@@ -13,7 +13,7 @@ import {
   User,
   Building2,
   UtensilsCrossed,
-} from 'lucide-react';
+} from '../../components/Icons';
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);

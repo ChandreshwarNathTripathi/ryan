@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from '../router';
 import { roomService } from '../services/api';
 import {
   Search,
@@ -12,7 +12,7 @@ import {
   BedDouble,
   ShieldCheck,
   CheckCircle2,
-} from 'lucide-react';
+} from '../components/Icons';
 
 const Rooms = () => {
   const [searchParams, setSearchParams] = useSearchParams();

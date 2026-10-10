@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Building2, Mail, Phone, MapPin, ShieldCheck, Clock } from 'lucide-react';
+import { Link } from '../router';
+import { Building2, Mail, Phone, MapPin, ShieldCheck, Clock } from './Icons';
 
 const Footer = () => {
   return (

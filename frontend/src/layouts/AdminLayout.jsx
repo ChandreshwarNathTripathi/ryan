@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from '../router';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard,
@@ -14,7 +14,7 @@ import {
   Menu,
   X,
   ShieldAlert,
-} from 'lucide-react';
+} from '../components/Icons';
 
 const AdminLayout = () => {
   const { user, logout } = useAuth();

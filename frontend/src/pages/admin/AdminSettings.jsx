@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Save, CheckCircle2, ShieldCheck, Building2 } from 'lucide-react';
+import { Settings, Save, CheckCircle2, ShieldCheck, Building2 } from '../../components/Icons';
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
