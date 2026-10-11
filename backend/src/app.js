@@ -1,43 +1,37 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const roomRoutes = require("./routes/roomRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
 
 // Load environment variables
 dotenv.config();
 
-// Attempt database connection
-const connectDB = require("./config/db");
-connectDB();
-
-// Initialize Express app
+// Create Express application
 const app = express();
 
 // Enable CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-    credentials: true,
+    origin: process.env.CLIENT_URL || "http://localhost:5173"
   })
 );
 
-// Enable JSON and form body parsers
+// Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check API
+// Feature Routes
+app.use("/api/rooms", roomRoutes);
+app.use("/api/bookings", bookingRoutes);
+
+// Simple health check route
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "OK",
     service: "XSHostel REST API",
-    version: "1.0.0",
+    version: "1.0.0"
   });
 });
-
-// Import and mount feature routes
-const userRoutes = require("./routes/userRoutes");
-const bookingRoutes = require("./routes/bookingRoutes");
-
-app.use("/api/users", userRoutes);
-app.use("/api/bookings", bookingRoutes);
 
 module.exports = app;
