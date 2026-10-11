@@ -1,76 +1,97 @@
 const mongoose = require("mongoose");
 
+// Review Schema for Dormitory Feedback (Issue #5)
+const reviewSchema = new mongoose.Schema(
+  {
+    studentName: {
+      type: String,
+      default: "Student",
+    },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    comment: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+// Hostel Dormitory & Room Schema (Issues #2, #5, #6, #8)
 const roomSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
-      trim: true
+      default: function () {
+        return `Room ${this.roomNumber || ""}`;
+      },
+      trim: true,
     },
     roomNumber: {
       type: String,
-      required: true,
+      required: [true, "Room number is required"],
       unique: true,
-      uppercase: true,
-      trim: true
+      trim: true,
     },
     block: {
       type: String,
-      required: true,
-      enum: ["Block A (Boys)", "Block B (Girls)", "Block C (Scholars)"]
+      required: [true, "Hostel block is required"],
+      default: "Block A (Boys)",
     },
     category: {
       type: String,
-      required: true,
-      enum: ["Single Scholar", "Double Sharing", "Triple Sharing", "Quad Sharing"]
+      default: "Double Sharing",
     },
     gender: {
       type: String,
-      required: true,
-      enum: ["Boys", "Girls", "Co-ed"]
+      default: "Any",
     },
     floor: {
-      type: Number,
-      required: true,
-      min: 1,
-      max: 8
+      type: mongoose.Schema.Types.Mixed,
+      default: "1st Floor",
     },
     capacity: {
       type: Number,
       required: true,
       min: 1,
-      max: 4
+      default: 2,
     },
     occupiedBeds: {
       type: Number,
-      default: 0
+      default: 0,
+      min: 0,
     },
     pricePerSemester: {
       type: Number,
-      required: true
+      required: true,
+      default: 55000,
     },
     amenities: {
       type: [String],
-      default: []
+      default: ["High-Speed Wi-Fi", "Attached Bathroom", "Study Desk", "Personal Wardrobe"],
     },
     images: {
       type: [String],
-      default: []
+      default: [],
     },
     curfewTime: {
       type: String,
-      default: "10:00 PM"
+      default: "10:00 PM",
     },
     status: {
       type: String,
-      enum: ["available", "occupied", "maintenance"],
-      default: "available"
-    }
+      default: "Available",
+    },
+    reviews: [reviewSchema],
   },
   {
     timestamps: true,
     toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    toObject: { virtuals: true },
   }
 );
 
@@ -79,4 +100,5 @@ roomSchema.virtual("availableBeds").get(function () {
   return Math.max(0, this.capacity - (this.occupiedBeds || 0));
 });
 
-module.exports = mongoose.model("Room", roomSchema);
+const Room = mongoose.models.Room || mongoose.model("Room", roomSchema);
+module.exports = Room;

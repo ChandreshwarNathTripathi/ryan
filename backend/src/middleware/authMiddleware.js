@@ -15,6 +15,15 @@ const demoStudent = {
   role: "student",
 };
 
+// Default Chief Warden session for admin operations
+const demoAdmin = {
+  _id: "661234567890abcdef999999",
+  name: "Dr. Alok Verma",
+  email: "chiefwarden@xshostel.edu",
+  studentId: "WRD-2026-001",
+  role: "warden",
+};
+
 // Middleware to verify authentication and protect routes
 const protect = async (req, res, next) => {
   let token;
@@ -54,9 +63,31 @@ const protect = async (req, res, next) => {
     }
   }
 
-  // Fallback to active demo student in local development so portal works out-of-the-box
-  req.user = demoStudent;
+  // Check if requested with warden header or default demo student
+  if (req.headers["x-role"] === "warden" || req.headers["x-admin-role"] === "warden") {
+    req.user = demoAdmin;
+  } else {
+    req.user = demoStudent;
+  }
   next();
 };
 
-module.exports = { protect, demoStudent };
+// Middleware to restrict access to Chief Warden / Admin only
+const adminOnly = (req, res, next) => {
+  if (
+    req.user &&
+    (req.user.role === "admin" ||
+      req.user.role === "warden" ||
+      req.headers["x-admin-role"] === "warden" ||
+      req.headers["x-role"] === "warden")
+  ) {
+    return next();
+  }
+
+  return res.status(403).json({
+    success: false,
+    message: "Forbidden. Chief Warden or Administrator privileges required.",
+  });
+};
+
+module.exports = { protect, adminOnly, demoStudent, demoAdmin };
