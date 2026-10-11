@@ -1,33 +1,25 @@
 const express = require("express");
 const router = express.Router();
 const bookingController = require("../controllers/bookingController");
-
-// Dynamic auth middleware lookup
-let protect = (req, res, next) => next();
-try {
-  const auth = require("../middleware/authMiddleware");
-  if (auth && auth.protect) protect = auth.protect;
-} catch (e) {
-  // If auth middleware is pending, fallback gracefully
-}
-
-router.post("/", protect, bookingController.createBooking);
-router.get("/my-bookings", protect, bookingController.getMyBookings);
-router.get("/:id", protect, bookingController.getBookingById);
-router.patch("/:id/cancel", protect, bookingController.cancelBooking);
-
-module.exports = router;
-const {
-  getMyBookings,
-  vacateBooking,
-} = require("../controllers/bookingController");
 const { protect } = require("../middleware/authMiddleware");
 
-// Student allocations ledger
-router.get("/my", protect, getMyBookings);
+// Student allocations ledger (supports both /my and /my-bookings)
+router.get("/my", protect, bookingController.getMyBookings);
+router.get("/my-bookings", protect, bookingController.getMyBookings);
+
+// Booking creation and single booking retrieval
+if (bookingController.createBooking) {
+  router.post("/", protect, bookingController.createBooking);
+}
+if (bookingController.getBookingById) {
+  router.get("/:id", protect, bookingController.getBookingById);
+}
 
 // Room vacating endpoint (supports both :id/cancel and :id/vacate)
-router.patch("/:id/cancel", protect, vacateBooking);
-router.patch("/:id/vacate", protect, vacateBooking);
+const handleCancelOrVacate = bookingController.vacateBooking || bookingController.cancelBooking;
+if (handleCancelOrVacate) {
+  router.patch("/:id/cancel", protect, handleCancelOrVacate);
+  router.patch("/:id/vacate", protect, handleCancelOrVacate);
+}
 
 module.exports = router;
