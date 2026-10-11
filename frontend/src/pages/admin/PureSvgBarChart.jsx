@@ -1,29 +1,46 @@
 import React, { useState } from "react";
 
-// Pure SVG Comparative Bar Chart: Total Beds vs Occupied Beds
+// ==============================================================================
+// PureSvgBarChart — Beginner-Friendly Pure SVG Comparative Bar Chart
+// Compares: Total Beds vs Occupied Beds for each campus hostel block
+// Zero chart libraries used. Built with simple SVG <rect> and <text> elements.
+// ==============================================================================
 function PureSvgBarChart({ data = [] }) {
+  // Simple state to store which block the user is currently hovering over
   const [hoveredBlock, setHoveredBlock] = useState(null);
 
+  // If data is missing or empty, display friendly fallback message
   if (!data || data.length === 0) {
     return <div className="chart-empty">No block capacity data available.</div>;
   }
 
-  const width = 800;
-  const height = 280;
-  const paddingLeft = 60;
-  const paddingRight = 30;
-  const paddingTop = 30;
-  const paddingBottom = 45;
+  // --- 1. SVG Canvas Dimensions ---
+  const width = 800;        // Total width
+  const height = 280;       // Total height
+  const paddingLeft = 60;   // Left space for number ticks
+  const paddingRight = 30;  // Right padding
+  const paddingTop = 30;    // Top padding
+  const paddingBottom = 45; // Bottom space for block names
 
   const chartWidth = width - paddingLeft - paddingRight;
   const chartHeight = height - paddingTop - paddingBottom;
 
-  const maxBeds = Math.max(...data.map((d) => d.totalBeds), 10);
-  const blockWidth = chartWidth / data.length;
+  // --- 2. Find Maximum Bed Count for Y-Axis Scaling ---
+  let maxBeds = 10;
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].totalBeds > maxBeds) {
+      maxBeds = data[i].totalBeds;
+    }
+  }
+
+  // Width allocated to each block section
+  const blockSlotWidth = chartWidth / data.length;
+  // Width of each individual bar inside the block group
   const barWidth = 32;
 
   return (
     <div className="svg-chart-wrapper">
+      {/* Chart Legend */}
       <div className="chart-legend">
         <div className="legend-item">
           <span className="legend-color total-color"></span>
@@ -40,11 +57,11 @@ function PureSvgBarChart({ data = [] }) {
         className="pure-svg-chart"
         preserveAspectRatio="xMidYMid meet"
       >
-        {/* Horizontal Grid lines */}
-        {[0, maxBeds * 0.5, maxBeds].map((val, idx) => {
-          const y = paddingTop + chartHeight - (val / maxBeds) * chartHeight;
+        {/* Horizontal reference grid lines at 0, 50%, and 100% capacity */}
+        {[0, maxBeds * 0.5, maxBeds].map((tickValue, index) => {
+          const y = paddingTop + chartHeight - (tickValue / maxBeds) * chartHeight;
           return (
-            <g key={idx}>
+            <g key={index}>
               <line
                 x1={paddingLeft}
                 y1={y}
@@ -60,54 +77,59 @@ function PureSvgBarChart({ data = [] }) {
                 fill="#94A3B8"
                 fontSize="11"
               >
-                {Math.round(val)}
+                {Math.round(tickValue)}
               </text>
             </g>
           );
         })}
 
-        {/* Grouped Comparative Bars for each Block */}
-        {data.map((block, i) => {
-          const groupCenterX = paddingLeft + i * blockWidth + blockWidth / 2;
-          const totalHeight = (block.totalBeds / maxBeds) * chartHeight;
-          const occupiedHeight = (block.occupiedBeds / maxBeds) * chartHeight;
+        {/* Render grouped bars for each block */}
+        {data.map((block, index) => {
+          // Center X position for this block group
+          const centerX = paddingLeft + index * blockSlotWidth + blockSlotWidth / 2;
 
-          const totalBarX = groupCenterX - barWidth - 4;
-          const occupiedBarX = groupCenterX + 4;
+          // Bar heights calculated using simple percentage math: (beds / maxBeds) * chartHeight
+          const totalBarHeight = (block.totalBeds / maxBeds) * chartHeight;
+          const occupiedBarHeight = (block.occupiedBeds / maxBeds) * chartHeight;
 
-          const totalBarY = paddingTop + chartHeight - totalHeight;
-          const occupiedBarY = paddingTop + chartHeight - occupiedHeight;
+          // X positions: Total bar sits slightly left of center, Occupied sits right
+          const totalBarX = centerX - barWidth - 4;
+          const occupiedBarX = centerX + 4;
+
+          // SVG Y coordinates start from top, so top of bar = bottom line - barHeight
+          const totalBarY = paddingTop + chartHeight - totalBarHeight;
+          const occupiedBarY = paddingTop + chartHeight - occupiedBarHeight;
 
           return (
             <g
-              key={block.block || i}
+              key={block.block || index}
               onMouseEnter={() => setHoveredBlock(block)}
               onMouseLeave={() => setHoveredBlock(null)}
               style={{ cursor: "pointer" }}
             >
-              {/* Total Beds Bar */}
+              {/* 1. Total Beds Bar (Purple Outline) */}
               <rect
                 x={totalBarX}
                 y={totalBarY}
                 width={barWidth}
-                height={totalHeight}
+                height={totalBarHeight}
                 rx="5"
                 fill="rgba(139, 92, 246, 0.35)"
                 stroke="#8B5CF6"
                 strokeWidth="1.5"
               />
 
-              {/* Occupied Beds Bar */}
+              {/* 2. Occupied Beds Bar (Solid Green) */}
               <rect
                 x={occupiedBarX}
                 y={occupiedBarY}
                 width={barWidth}
-                height={occupiedHeight}
+                height={occupiedBarHeight}
                 rx="5"
                 fill="#10B981"
               />
 
-              {/* Value labels atop bars */}
+              {/* 3. Value numbers displayed on top of bars */}
               <text
                 x={totalBarX + barWidth / 2}
                 y={totalBarY - 6}
@@ -118,6 +140,7 @@ function PureSvgBarChart({ data = [] }) {
               >
                 {block.totalBeds}
               </text>
+
               <text
                 x={occupiedBarX + barWidth / 2}
                 y={occupiedBarY - 6}
@@ -129,9 +152,9 @@ function PureSvgBarChart({ data = [] }) {
                 {block.occupiedBeds}
               </text>
 
-              {/* Block Name on X-Axis */}
+              {/* 4. Block Name label on X-axis */}
               <text
-                x={groupCenterX}
+                x={centerX}
                 y={height - 12}
                 textAnchor="middle"
                 fill="#E2E8F0"
@@ -145,10 +168,13 @@ function PureSvgBarChart({ data = [] }) {
         })}
       </svg>
 
-      {/* Hover Info Banner */}
+      {/* Hover information message */}
       {hoveredBlock && (
         <div className="bar-hover-summary">
-          <strong>{hoveredBlock.block}:</strong> {hoveredBlock.occupiedBeds} / {hoveredBlock.totalBeds} Beds Occupied ({((hoveredBlock.occupiedBeds / hoveredBlock.totalBeds) * 100).toFixed(0)}% Occupancy) • {hoveredBlock.rooms} Rooms
+          <strong>{hoveredBlock.block}: </strong>
+          {hoveredBlock.occupiedBeds} / {hoveredBlock.totalBeds} Beds Occupied (
+          {Math.round((hoveredBlock.occupiedBeds / (hoveredBlock.totalBeds || 1)) * 100)}% Occupancy) •{" "}
+          {hoveredBlock.rooms} Rooms
         </div>
       )}
     </div>

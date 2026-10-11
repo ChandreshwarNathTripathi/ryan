@@ -1,45 +1,86 @@
 import React, { useState } from "react";
 
-// Pure SVG 6-Month Fee Collections Area & Line Chart (No External Chart Libraries)
+// ==============================================================================
+// PureSvgAreaChart — Beginner-Friendly Pure SVG Line & Area Chart
+// NO external libraries like Recharts or Chart.js are used.
+// We use simple school math: (value / maximum) * height
+// ==============================================================================
 function PureSvgAreaChart({ data = [] }) {
+  // Simple state to remember which point the user is hovering over
   const [hoveredPoint, setHoveredPoint] = useState(null);
 
+  // If there is no data, show a friendly empty message
   if (!data || data.length === 0) {
     return <div className="chart-empty">No revenue data available for the last 6 months.</div>;
   }
 
-  // Dimensions & Padding
-  const width = 800;
-  const height = 300;
-  const paddingLeft = 70;
-  const paddingRight = 30;
-  const paddingTop = 30;
-  const paddingBottom = 40;
+  // --- 1. SVG Canvas Dimensions ---
+  const width = 800;        // Total width of the chart SVG
+  const height = 300;       // Total height of the chart SVG
+  const paddingLeft = 70;   // Left space for rupee labels
+  const paddingRight = 30;  // Right border padding
+  const paddingTop = 30;    // Top border padding
+  const paddingBottom = 40; // Bottom space for month names
 
   const chartWidth = width - paddingLeft - paddingRight;
   const chartHeight = height - paddingTop - paddingBottom;
 
-  // Find max revenue for Y-axis scale
-  const maxRevenue = Math.max(...data.map((d) => d.revenue), 100000);
-  const yTicks = [0, maxRevenue * 0.25, maxRevenue * 0.5, maxRevenue * 0.75, maxRevenue];
+  // --- 2. Find the Maximum Revenue for Scaling ---
+  let maxRevenue = 100000; // Default minimum scale
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].revenue > maxRevenue) {
+      maxRevenue = data[i].revenue;
+    }
+  }
 
-  // Compute (X, Y) points dynamically
-  const points = data.map((d, index) => {
-    const x = paddingLeft + (index / (data.length - 1 || 1)) * chartWidth;
-    const y = paddingTop + chartHeight - (d.revenue / maxRevenue) * chartHeight;
-    return { ...d, x, y };
-  });
+  // Horizontal guide line values (0%, 25%, 50%, 75%, 100%)
+  const yTicks = [
+    0,
+    maxRevenue * 0.25,
+    maxRevenue * 0.5,
+    maxRevenue * 0.75,
+    maxRevenue,
+  ];
 
-  // Build SVG path strings
-  const linePath = points.reduce((path, pt, index) => {
-    return index === 0 ? `M ${pt.x} ${pt.y}` : `${path} L ${pt.x} ${pt.y}`;
-  }, "");
+  // --- 3. Calculate (X, Y) Position for Each Month ---
+  // Simple arithmetic:
+  // x = start + (index / totalSteps) * availableWidth
+  // y = bottom - (revenue / maxRevenue) * availableHeight
+  const points = [];
+  const totalSteps = data.length > 1 ? data.length - 1 : 1;
 
-  const areaPath = `
-    ${linePath} 
-    L ${points[points.length - 1].x} ${paddingTop + chartHeight} 
-    L ${points[0].x} ${paddingTop + chartHeight} Z
-  `;
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    const x = paddingLeft + (i / totalSteps) * chartWidth;
+    const y = paddingTop + chartHeight - (item.revenue / maxRevenue) * chartHeight;
+
+    points.push({
+      month: item.month,
+      revenue: item.revenue,
+      allocations: item.allocations,
+      x: x,
+      y: y,
+    });
+  }
+
+  // --- 4. Build the SVG Path String for the Line ---
+  // In SVG:
+  // "M x y" means "Move to this starting coordinate"
+  // "L x y" means "Draw a straight line to this coordinate"
+  let linePath = "";
+  for (let i = 0; i < points.length; i++) {
+    if (i === 0) {
+      linePath = `M ${points[i].x} ${points[i].y}`;
+    } else {
+      linePath += ` L ${points[i].x} ${points[i].y}`;
+    }
+  }
+
+  // Area Path: Connect the line down to the bottom axis and close back to start
+  const firstPoint = points[0];
+  const lastPoint = points[points.length - 1];
+  const bottomY = paddingTop + chartHeight;
+  const areaPath = `${linePath} L ${lastPoint.x} ${bottomY} L ${firstPoint.x} ${bottomY} Z`;
 
   return (
     <div className="svg-chart-wrapper">
@@ -48,6 +89,7 @@ function PureSvgAreaChart({ data = [] }) {
         className="pure-svg-chart"
         preserveAspectRatio="xMidYMid meet"
       >
+        {/* Definition for smooth purple gradient underneath the line */}
         <defs>
           <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.45" />
@@ -55,11 +97,11 @@ function PureSvgAreaChart({ data = [] }) {
           </linearGradient>
         </defs>
 
-        {/* Horizontal Grid Lines & Y-Axis Labels */}
-        {yTicks.map((tickValue, i) => {
+        {/* Draw horizontal grid lines & rupee amount labels */}
+        {yTicks.map((tickValue, index) => {
           const y = paddingTop + chartHeight - (tickValue / maxRevenue) * chartHeight;
           return (
-            <g key={i}>
+            <g key={index}>
               <line
                 x1={paddingLeft}
                 y1={y}
@@ -74,7 +116,6 @@ function PureSvgAreaChart({ data = [] }) {
                 textAnchor="end"
                 fill="#94A3B8"
                 fontSize="11"
-                fontFamily="Inter, sans-serif"
               >
                 ₹{(tickValue / 1000).toFixed(0)}k
               </text>
@@ -82,10 +123,10 @@ function PureSvgAreaChart({ data = [] }) {
           );
         })}
 
-        {/* Shaded Area Fill */}
+        {/* 1. Shaded Area Fill */}
         <path d={areaPath} fill="url(#areaGradient)" />
 
-        {/* Solid Line Stroke */}
+        {/* 2. Top Connected Line */}
         <path
           d={linePath}
           fill="none"
@@ -95,38 +136,37 @@ function PureSvgAreaChart({ data = [] }) {
           strokeLinejoin="round"
         />
 
-        {/* Data Circles, X-Axis Labels & Hover Interaction */}
-        {points.map((pt, i) => (
-          <g key={i}>
-            {/* X-Axis Month Label */}
+        {/* 3. Circular Points & Month Labels */}
+        {points.map((pt, index) => (
+          <g key={index}>
+            {/* Month label below each column */}
             <text
               x={pt.x}
               y={height - 12}
               textAnchor="middle"
               fill="#94A3B8"
               fontSize="12"
-              fontFamily="Inter, sans-serif"
             >
               {pt.month}
             </text>
 
-            {/* Circular Data Point */}
+            {/* Circular data point dot */}
             <circle
               cx={pt.x}
               cy={pt.y}
-              r={hoveredPoint === i ? 7 : 5}
+              r={hoveredPoint === index ? 7 : 5}
               fill="#FFFFFF"
               stroke="#8B5CF6"
               strokeWidth="3"
-              style={{ cursor: "pointer", transition: "all 0.2s ease" }}
-              onMouseEnter={() => setHoveredPoint(i)}
+              style={{ cursor: "pointer" }}
+              onMouseEnter={() => setHoveredPoint(index)}
               onMouseLeave={() => setHoveredPoint(null)}
             />
           </g>
         ))}
       </svg>
 
-      {/* Dynamic Hover Tooltip */}
+      {/* Hover Information Box */}
       {hoveredPoint !== null && (
         <div
           className="chart-tooltip"

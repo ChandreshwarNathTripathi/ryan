@@ -3,14 +3,24 @@ import MyBookings from "./pages/MyBookings";
 import Profile from "./pages/Profile";
 import AdminLayout from "./pages/admin/AdminLayout";
 
+// ==============================================================================
+// App — Main Root Component for XSHostel
+// Manages:
+// 1. Role simulation (Student vs Chief Warden)
+// 2. View switching (Student Resident Portal vs Chief Warden Operations Console)
+// 3. Route protection for /admin routes
+// ==============================================================================
 function App() {
-  // Current active view: "student" or "admin"
-  const [currentView, setCurrentView] = useState("admin"); // Default to admin for review of Issue #8
+  // Current active view: "admin" or "student"
+  const [currentView, setCurrentView] = useState("admin"); // Starts in admin view for Issue #8 evaluation
+  // Current tab in the student portal: "bookings" or "profile"
   const [studentTab, setStudentTab] = useState("bookings");
-  const [userRole, setUserRole] = useState("warden"); // "warden" or "student"
+  // Simulated user role: "warden" (admin) or "student"
+  const [userRole, setUserRole] = useState("warden");
+  // Toast alert message
   const [toastMessage, setToastMessage] = useState("");
 
-  // Handle URL changes or direct navigation
+  // Listen to browser navigation (back/forward button)
   useEffect(() => {
     const handleUrlChange = () => {
       if (window.location.pathname.startsWith("/admin")) {
@@ -22,10 +32,10 @@ function App() {
     return () => window.removeEventListener("popstate", handleUrlChange);
   }, [userRole]);
 
-  // Route protection logic
+  // Route protection logic: Check if user is allowed to access /admin
   const attemptAccessAdmin = () => {
     if (userRole !== "warden") {
-      // Rejection for normal student
+      // If student tries to enter admin: Block access and redirect to public homepage
       setToastMessage("⛔ Access Denied: Chief Warden authorization required to access /admin.");
       setCurrentView("student");
       window.history.replaceState(null, "", "/");
@@ -33,16 +43,19 @@ function App() {
       return false;
     }
 
+    // If warden: Allow entry into admin console
     setCurrentView("admin");
     window.history.pushState(null, "", "/admin");
     return true;
   };
 
+  // Switch back to public student site
   const handleSwitchToStudent = () => {
     setCurrentView("student");
     window.history.pushState(null, "", "/");
   };
 
+  // Toggle user role between Student and Chief Warden
   const handleToggleRole = () => {
     if (userRole === "warden") {
       setUserRole("student");
@@ -62,7 +75,7 @@ function App() {
 
   return (
     <div className="app-root-container">
-      {/* Toast Alert */}
+      {/* 1. Global Toast Alert */}
       {toastMessage && (
         <div className="global-toast-notification">
           <span>{toastMessage}</span>
@@ -70,7 +83,7 @@ function App() {
         </div>
       )}
 
-      {/* Role Demonstration & Quick Switch Bar */}
+      {/* 2. Role Simulation & Quick Switch Banner */}
       <div className="role-switcher-banner no-print">
         <div className="role-switcher-inner">
           <div className="role-status">
@@ -109,7 +122,7 @@ function App() {
         </div>
       </div>
 
-      {/* Conditional Rendering: Admin Console vs Student Portal */}
+      {/* 3. Conditional Rendering: Admin Console vs Student Portal */}
       {currentView === "admin" && userRole === "warden" ? (
         <AdminLayout onExitToPublicSite={handleSwitchToStudent} />
       ) : (

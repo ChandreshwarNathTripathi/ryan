@@ -2,17 +2,24 @@ import React, { useState, useEffect } from "react";
 import PureSvgAreaChart from "./PureSvgAreaChart";
 import PureSvgBarChart from "./PureSvgBarChart";
 
+// ==============================================================================
+// AdminOverview — Beginner-Friendly Chief Warden Operations Dashboard
+// Fetches real campus statistics and renders metric cards + pure SVG charts.
+// ==============================================================================
 function AdminOverview() {
-  const [stats, setStats] = useState(null);
-  const [analytics, setAnalytics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  // 1. Component State using basic React useState hooks
+  const [stats, setStats] = useState(null);       // Holds summary numbers (beds, revenue, etc.)
+  const [analytics, setAnalytics] = useState(null); // Holds array data for SVG charts
+  const [loading, setLoading] = useState(true);     // Tracks if data is being fetched
+  const [error, setError] = useState("");           // Holds any error message
 
+  // 2. Simple function to fetch data from backend admin endpoints
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       setError("");
 
+      // Fetch summary stats and visual chart data in parallel
       const [statsRes, analyticsRes] = await Promise.all([
         fetch("http://localhost:5001/api/admin/stats", {
           headers: { "x-admin-role": "warden" },
@@ -28,6 +35,7 @@ function AdminOverview() {
       if (!statsRes.ok) throw new Error(statsData.message || "Failed to fetch stats");
       if (!analyticsRes.ok) throw new Error(analyticsData.message || "Failed to fetch analytics");
 
+      // Save data to state
       setStats(statsData);
       setAnalytics(analyticsData);
     } catch (err) {
@@ -37,17 +45,19 @@ function AdminOverview() {
     }
   };
 
+  // 3. Load data once when component mounts
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
+  // 4. Loading state view
   if (loading) {
     return <div className="admin-loading">Loading Chief Warden operations console...</div>;
   }
 
   return (
     <div className="admin-overview-container">
-      {/* Page Header */}
+      {/* Page Title & Refresh Button */}
       <div className="admin-page-header">
         <div>
           <h1>Operations Overview & Visual Analytics</h1>
@@ -58,10 +68,12 @@ function AdminOverview() {
         </button>
       </div>
 
+      {/* Error Alert (if any) */}
       {error && <div className="alert alert-error">{error}</div>}
 
-      {/* Top Metric Cards */}
+      {/* Top 4 Key Metric Cards */}
       <div className="admin-metric-grid">
+        {/* Card 1: Total Campus Beds */}
         <div className="metric-card">
           <div className="metric-header">
             <span className="metric-title">Total Campus Beds</span>
@@ -71,6 +83,7 @@ function AdminOverview() {
           <span className="metric-subtext">Across {stats?.totalRooms || 0} dorm rooms</span>
         </div>
 
+        {/* Card 2: Occupancy Rate */}
         <div className="metric-card">
           <div className="metric-header">
             <span className="metric-title">Occupancy Rate</span>
@@ -82,6 +95,7 @@ function AdminOverview() {
           </span>
         </div>
 
+        {/* Card 3: Active Students */}
         <div className="metric-card">
           <div className="metric-header">
             <span className="metric-title">Active Resident Students</span>
@@ -91,6 +105,7 @@ function AdminOverview() {
           <span className="metric-subtext">Verified enrolled residents</span>
         </div>
 
+        {/* Card 4: Total Revenue */}
         <div className="metric-card">
           <div className="metric-header">
             <span className="metric-title">Semester Fees Collected</span>
@@ -101,7 +116,7 @@ function AdminOverview() {
         </div>
       </div>
 
-      {/* Analytics Chart 1: Pure SVG Area Chart */}
+      {/* Visual Analytics Chart 1: Pure SVG Area Chart */}
       <div className="admin-chart-card">
         <div className="chart-header">
           <div>
@@ -112,7 +127,7 @@ function AdminOverview() {
         <PureSvgAreaChart data={analytics?.monthlyRevenue || []} />
       </div>
 
-      {/* Analytics Chart 2: Pure SVG Comparative Bar Chart */}
+      {/* Visual Analytics Chart 2: Pure SVG Comparative Bar Chart */}
       <div className="admin-chart-card">
         <div className="chart-header">
           <div>

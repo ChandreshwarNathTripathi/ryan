@@ -5,10 +5,17 @@ import AdminBookings from "./AdminBookings";
 import AdminUsers from "./AdminUsers";
 import AdminSettings from "./AdminSettings";
 
+// ==============================================================================
+// AdminLayout — Beginner-Friendly Chief Warden Console Shell
+// Contains the sidebar navigation menu, top bar status, and active tab view.
+// ==============================================================================
 function AdminLayout({ onExitToPublicSite }) {
+  // Simple state to remember which menu item is selected
   const [activeTab, setActiveTab] = useState("overview");
+  // Simple state for opening/closing mobile sidebar
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // List of navigation tabs
   const navItems = [
     { id: "overview", label: "Operations Overview", icon: "📊" },
     { id: "rooms", label: "Dormitories & Beds", icon: "🛏️" },
@@ -19,8 +26,9 @@ function AdminLayout({ onExitToPublicSite }) {
 
   return (
     <div className="admin-console-layout">
-      {/* Sidebar Navigation */}
+      {/* 1. Sidebar Navigation */}
       <aside className={`admin-sidebar ${isMobileMenuOpen ? "mobile-open" : ""}`}>
+        {/* Chief Warden Crest Header */}
         <div className="admin-crest-section">
           <div className="admin-crest-badge">
             <span className="crest-icon">🛡️</span>
@@ -31,6 +39,7 @@ function AdminLayout({ onExitToPublicSite }) {
           </div>
         </div>
 
+        {/* Sidebar Nav Buttons */}
         <nav className="admin-nav-menu">
           {navItems.map((item) => (
             <button
@@ -39,7 +48,7 @@ function AdminLayout({ onExitToPublicSite }) {
               className={`admin-nav-item ${activeTab === item.id ? "active" : ""}`}
               onClick={() => {
                 setActiveTab(item.id);
-                setIsMobileMenuOpen(false);
+                setIsMobileMenuOpen(false); // Close mobile drawer when clicked
               }}
             >
               <span className="nav-icon">{item.icon}</span>
@@ -48,6 +57,7 @@ function AdminLayout({ onExitToPublicSite }) {
           ))}
         </nav>
 
+        {/* Sidebar Footer with Link back to Student Portal */}
         <div className="admin-sidebar-footer">
           <button
             type="button"
@@ -66,8 +76,9 @@ function AdminLayout({ onExitToPublicSite }) {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* 2. Main Content Area */}
       <div className="admin-main-wrapper">
+        {/* Top Bar Header */}
         <header className="admin-topbar">
           <button
             type="button"
@@ -91,6 +102,7 @@ function AdminLayout({ onExitToPublicSite }) {
           </div>
         </header>
 
+        {/* Dynamic Body: Renders whichever tab is selected */}
         <main className="admin-content-body">
           {activeTab === "overview" && <AdminOverview />}
           {activeTab === "rooms" && <AdminRooms />}

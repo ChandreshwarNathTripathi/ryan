@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from "react";
 
+// ==============================================================================
+// AdminRooms — Beginner-Friendly Dormitory & Bed Management Component
+// Allows Chief Warden to view, search, filter, create, edit, and delete dorm rooms.
+// ==============================================================================
 function AdminRooms() {
-  const [rooms, setRooms] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  // 1. Component State
+  const [rooms, setRooms] = useState([]);             // List of dorm rooms from backend
+  const [loading, setLoading] = useState(true);         // Loading indicator
+  const [error, setError] = useState("");               // Error message banner
+  const [successMsg, setSuccessMsg] = useState("");     // Success notification
 
-  // Filters
-  const [search, setSearch] = useState("");
-  const [selectedBlock, setSelectedBlock] = useState("All");
+  // Search and Filter State
+  const [search, setSearch] = useState("");             // Room number search string
+  const [selectedBlock, setSelectedBlock] = useState("All"); // Hostel wing dropdown filter
 
-  // Modal State
+  // Modal Dialog State (used for both Add and Edit)
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingRoom, setEditingRoom] = useState(null);
+  const [editingRoom, setEditingRoom] = useState(null); // null if adding new, or room object if editing
   const [formData, setFormData] = useState({
     roomNumber: "",
     block: "Block A (Boys)",
@@ -27,6 +32,7 @@ function AdminRooms() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
 
+  // List of standard campus amenities
   const availableAmenities = [
     "High-Speed Wi-Fi",
     "Attached Bathroom",
@@ -40,7 +46,7 @@ function AdminRooms() {
     "Quiet Zone",
   ];
 
-  // Fetch Rooms
+  // 2. Fetch Rooms from API with search query & block filter
   const fetchRooms = async () => {
     try {
       setLoading(true);
@@ -63,13 +69,14 @@ function AdminRooms() {
     }
   };
 
+  // Re-fetch rooms whenever search text or block filter changes
   useEffect(() => {
     fetchRooms();
   }, [search, selectedBlock]);
 
-  // Open Add Modal
+  // 3. Open Modal for Adding a New Room
   const handleOpenAdd = () => {
-    setEditingRoom(null);
+    setEditingRoom(null); // Clear editing reference
     setFormData({
       roomNumber: "",
       block: "Block A (Boys)",
@@ -85,7 +92,7 @@ function AdminRooms() {
     setIsModalOpen(true);
   };
 
-  // Open Edit Modal
+  // 4. Open Modal for Editing an Existing Room
   const handleOpenEdit = (room) => {
     setEditingRoom(room);
     setFormData({
@@ -103,22 +110,23 @@ function AdminRooms() {
     setIsModalOpen(true);
   };
 
-  // Toggle Amenity Checkbox
+  // 5. Toggle an Amenity Checkbox
   const handleToggleAmenity = (item) => {
-    setFormData((prev) => {
-      const exists = prev.amenities.includes(item);
-      return {
-        ...prev,
-        amenities: exists
-          ? prev.amenities.filter((a) => a !== item)
-          : [...prev.amenities, item],
-      };
-    });
+    const isPresent = formData.amenities.includes(item);
+    let updatedAmenities = [];
+    if (isPresent) {
+      updatedAmenities = formData.amenities.filter((a) => a !== item);
+    } else {
+      updatedAmenities = [...formData.amenities, item];
+    }
+    setFormData({ ...formData, amenities: updatedAmenities });
   };
 
-  // Submit Room Form
+  // 6. Submit Add / Edit Form to Backend
   const handleSubmitForm = async (e) => {
     e.preventDefault();
+
+    // Basic validation
     if (!formData.roomNumber.trim()) {
       setFormError("Room number is required (e.g. A-105).");
       return;
@@ -146,13 +154,14 @@ function AdminRooms() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to save room");
 
+      // Show friendly confirmation message
       setSuccessMsg(
         isEdit
           ? `Dormitory room ${formData.roomNumber} updated successfully!`
           : `New dormitory ${formData.roomNumber} added to campus inventory!`
       );
       setIsModalOpen(false);
-      fetchRooms();
+      fetchRooms(); // Refresh table immediately
 
       setTimeout(() => setSuccessMsg(""), 4000);
     } catch (err) {
@@ -162,11 +171,12 @@ function AdminRooms() {
     }
   };
 
-  // Delete Room
+  // 7. Delete Room
   const handleDeleteRoom = async (roomId, roomNumber) => {
-    if (!window.confirm(`Are you sure you want to decommission dormitory room ${roomNumber}? This cannot be undone.`)) {
-      return;
-    }
+    const confirmDelete = window.confirm(
+      `Are you sure you want to decommission dormitory room ${roomNumber}? This cannot be undone.`
+    );
+    if (!confirmDelete) return;
 
     try {
       const res = await fetch(`http://localhost:5001/api/admin/rooms/${roomId}`, {
@@ -186,7 +196,7 @@ function AdminRooms() {
 
   return (
     <div className="admin-page-container">
-      {/* Header */}
+      {/* Page Header */}
       <div className="admin-page-header">
         <div>
           <h1>Dormitories & Bed Inventory</h1>
@@ -197,10 +207,11 @@ function AdminRooms() {
         </button>
       </div>
 
+      {/* Notifications */}
       {successMsg && <div className="alert alert-success">{successMsg}</div>}
       {error && <div className="alert alert-error">{error}</div>}
 
-      {/* Filter and Search Controls */}
+      {/* Search and Filter Controls */}
       <div className="admin-filter-bar">
         <div className="search-input-wrap">
           <span className="search-icon">🔍</span>
@@ -229,7 +240,7 @@ function AdminRooms() {
         </div>
       </div>
 
-      {/* Rooms Table */}
+      {/* Dormitories Table */}
       {loading ? (
         <div className="admin-loading">Loading dormitory inventory...</div>
       ) : rooms.length === 0 ? (

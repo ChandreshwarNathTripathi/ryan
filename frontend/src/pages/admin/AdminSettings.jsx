@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 
+// ==============================================================================
+// AdminSettings — Beginner-Friendly Campus Operating Policies Component
+// Allows Chief Warden to view and update curfew hours, mess tariffs, and contacts.
+// ==============================================================================
 function AdminSettings() {
+  // 1. Component State
   const [settings, setSettings] = useState({
     curfewHours: "10:00 PM",
     messMonthlyRate: 4500,
@@ -12,6 +17,7 @@ function AdminSettings() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
+  // 2. Fetch current settings from backend API
   const fetchSettings = async () => {
     try {
       setLoading(true);
@@ -41,6 +47,7 @@ function AdminSettings() {
     fetchSettings();
   }, []);
 
+  // 3. Save updated settings to backend API
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -82,11 +89,13 @@ function AdminSettings() {
         </div>
       </div>
 
+      {/* Notifications */}
       {successMsg && <div className="alert alert-success">{successMsg}</div>}
       {error && <div className="alert alert-error">{error}</div>}
 
       <div className="settings-card">
         <form onSubmit={handleSubmit} className="settings-form">
+          {/* Field 1: Curfew Hours */}
           <div className="settings-field-group">
             <div className="settings-field-info">
               <label htmlFor="curfew-hours">Hostel Gate Curfew Hours</label>
@@ -105,6 +114,7 @@ function AdminSettings() {
             </div>
           </div>
 
+          {/* Field 2: Mess Rate */}
           <div className="settings-field-group">
             <div className="settings-field-info">
               <label htmlFor="mess-monthly-rate">Standard Mess Monthly Rate (₹)</label>
@@ -126,6 +136,7 @@ function AdminSettings() {
             </div>
           </div>
 
+          {/* Field 3: Caution Deposit */}
           <div className="settings-field-group">
             <div className="settings-field-info">
               <label htmlFor="caution-deposit">Institutional Caution Deposit (₹)</label>
@@ -147,6 +158,7 @@ function AdminSettings() {
             </div>
           </div>
 
+          {/* Field 4: Emergency Hotline */}
           <div className="settings-field-group">
             <div className="settings-field-info">
               <label htmlFor="emergency-contact">Warden Emergency Desk Contact</label>
@@ -167,6 +179,7 @@ function AdminSettings() {
             </div>
           </div>
 
+          {/* Submit Action */}
           <div className="settings-actions">
             <button
               type="submit"

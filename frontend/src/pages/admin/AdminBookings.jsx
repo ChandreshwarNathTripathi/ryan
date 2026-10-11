@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from "react";
 
+// ==============================================================================
+// AdminBookings — Beginner-Friendly Allocations Ledger Component
+// Displays room allotments and lets the Chief Warden update booking status.
+// ==============================================================================
 function AdminBookings() {
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
-  const [filterStatus, setFilterStatus] = useState("All");
-  const [updatingId, setUpdatingId] = useState(null);
+  // 1. Component State
+  const [bookings, setBookings] = useState([]);         // List of allocations
+  const [loading, setLoading] = useState(true);         // Loading indicator
+  const [error, setError] = useState("");               // Error banner
+  const [successMsg, setSuccessMsg] = useState("");     // Success feedback
+  const [filterStatus, setFilterStatus] = useState("All"); // Active filter tab
+  const [updatingId, setUpdatingId] = useState(null);   // ID currently being updated
 
+  // 2. Fetch allocations from backend
   const fetchBookings = async () => {
     try {
       setLoading(true);
@@ -31,11 +37,12 @@ function AdminBookings() {
     }
   };
 
+  // Re-fetch when the selected filter pill changes
   useEffect(() => {
     fetchBookings();
   }, [filterStatus]);
 
-  // Handle status update
+  // 3. Update an allocation status (confirmed, checked_in, vacated, cancelled)
   const handleUpdateStatus = async (bookingId, newStatus) => {
     try {
       setUpdatingId(bookingId);
@@ -75,19 +82,20 @@ function AdminBookings() {
         </button>
       </div>
 
+      {/* Notifications */}
       {successMsg && <div className="alert alert-success">{successMsg}</div>}
       {error && <div className="alert alert-error">{error}</div>}
 
       {/* Filter Tabs */}
       <div className="filter-pill-group">
-        {["All", "confirmed", "checked_in", "vacated", "cancelled"].map((st) => (
+        {["All", "confirmed", "checked_in", "vacated", "cancelled"].map((statusOption) => (
           <button
-            key={st}
+            key={statusOption}
             type="button"
-            className={`filter-pill-btn ${filterStatus === st ? "active" : ""}`}
-            onClick={() => setFilterStatus(st)}
+            className={`filter-pill-btn ${filterStatus === statusOption ? "active" : ""}`}
+            onClick={() => setFilterStatus(statusOption)}
           >
-            {st === "All" ? "All Allotments" : st.replace("_", " ").toUpperCase()}
+            {statusOption === "All" ? "All Allotments" : statusOption.replace("_", " ").toUpperCase()}
           </button>
         ))}
       </div>
@@ -118,38 +126,38 @@ function AdminBookings() {
               </tr>
             </thead>
             <tbody>
-              {bookings.map((b) => {
-                const isUpdating = updatingId === b._id;
+              {bookings.map((booking) => {
+                const isUpdating = updatingId === booking._id;
                 return (
-                  <tr key={b._id}>
+                  <tr key={booking._id}>
                     <td>
-                      <code className="ref-tag">{b.bookingReference}</code>
+                      <code className="ref-tag">{booking.bookingReference}</code>
                     </td>
                     <td>
-                      <strong>{b.studentName}</strong>
+                      <strong>{booking.studentName}</strong>
                     </td>
-                    <td>{b.studentRoll}</td>
+                    <td>{booking.studentRoll}</td>
                     <td>
-                      <span className="room-highlight">{b.roomNumber}</span>
-                      <small className="block-subtext">{b.block}</small>
+                      <span className="room-highlight">{booking.roomNumber}</span>
+                      <small className="block-subtext">{booking.block}</small>
                     </td>
-                    <td>{b.semester}</td>
+                    <td>{booking.semester}</td>
                     <td>
-                      <span className="mess-plan-tag">{b.messPlan}</span>
-                    </td>
-                    <td>
-                      <strong>₹{Number(b.totalFee).toLocaleString()}</strong>
+                      <span className="mess-plan-tag">{booking.messPlan}</span>
                     </td>
                     <td>
-                      <span className={`booking-status-badge status-${b.status}`}>
-                        {b.status.replace("_", " ").toUpperCase()}
+                      <strong>₹{Number(booking.totalFee).toLocaleString()}</strong>
+                    </td>
+                    <td>
+                      <span className={`booking-status-badge status-${booking.status}`}>
+                        {booking.status.replace("_", " ").toUpperCase()}
                       </span>
                     </td>
                     <td>
                       <select
                         disabled={isUpdating}
-                        value={b.status}
-                        onChange={(e) => handleUpdateStatus(b._id, e.target.value)}
+                        value={booking.status}
+                        onChange={(e) => handleUpdateStatus(booking._id, e.target.value)}
                         className="status-select-control"
                       >
                         <option value="confirmed">Confirmed</option>

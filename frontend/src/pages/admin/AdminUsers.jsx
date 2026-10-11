@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from "react";
 
+// ==============================================================================
+// AdminUsers — Beginner-Friendly Student & Staff Directory Component
+// Allows searching by name/roll/email, filtering by role, and suspending accounts.
+// ==============================================================================
 function AdminUsers() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  // 1. Component State
+  const [users, setUsers] = useState([]);         // List of users from backend
+  const [loading, setLoading] = useState(true);     // Loading indicator
+  const [error, setError] = useState("");           // Error banner
+  const [successMsg, setSuccessMsg] = useState(""); // Success message
 
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("All");
+  // Search & Role Filter State
+  const [search, setSearch] = useState("");         // Search string
+  const [roleFilter, setRoleFilter] = useState("All"); // "All", "student", "warden"
 
-  // Confirmation modal state
+  // Confirmation modal state for account suspension
   const [confirmTarget, setConfirmTarget] = useState(null);
   const [toggling, setToggling] = useState(false);
 
+  // 2. Fetch Users from API
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -39,17 +46,18 @@ function AdminUsers() {
     fetchUsers();
   }, [search, roleFilter]);
 
-  // Trigger Confirmation
+  // 3. User clicks Suspend / Restore button
   const handlePromptToggle = (user) => {
     if (user.status === "active") {
+      // If active, show confirmation dialog before suspending
       setConfirmTarget(user);
     } else {
-      // Direct restore without scary prompt
+      // If already suspended, restore access directly
       executeToggle(user);
     }
   };
 
-  // Execute Toggle Status
+  // 4. Send PATCH request to toggle status between active and suspended
   const executeToggle = async (user) => {
     try {
       setToggling(true);
@@ -68,8 +76,8 @@ function AdminUsers() {
           : `Account access restored for ${user.name}.`
       );
 
-      setConfirmTarget(null);
-      fetchUsers();
+      setConfirmTarget(null); // Close modal
+      fetchUsers();           // Refresh directory list
       setTimeout(() => setSuccessMsg(""), 4000);
     } catch (err) {
       alert("Error: " + err.message);
@@ -80,7 +88,7 @@ function AdminUsers() {
 
   return (
     <div className="admin-page-container">
-      {/* Header */}
+      {/* Page Header */}
       <div className="admin-page-header">
         <div>
           <h1>Student & Staff Directory</h1>
@@ -88,6 +96,7 @@ function AdminUsers() {
         </div>
       </div>
 
+      {/* Notifications */}
       {successMsg && <div className="alert alert-success">{successMsg}</div>}
       {error && <div className="alert alert-error">{error}</div>}
 
