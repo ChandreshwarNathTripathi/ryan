@@ -1,0 +1,51 @@
+/* Color variables for dark navy theme */
+:root {
+  --bg-primary: #0A0F1D;
+  --card-bg: #121A2D;
+  --accent-violet: #8B5CF6;
+  --text-primary: #FFFFFF;
+  --text-secondary: #AAB2C5;
+}
+
+/* Reset default margins and padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Page body styling */
+body {
+  font-family: "Inter", sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Centered container for welcome screen */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Main title styling */
+.app h1 {
+  font-family: "Outfit", sans-serif;
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+/* Subtitle styling */
+.app p {
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* Highlight the completion message in violet */
+.app p:last-child {
+  color: var(--accent-violet);
+}
