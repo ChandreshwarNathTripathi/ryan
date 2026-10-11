@@ -1,54 +1,55 @@
 const Room = require("../models/Room");
 
 const roomController = {
-  // GET /api/rooms - Query filters & pagination
+  // GET /api/rooms - Get all rooms with filtering, search & pagination
   getRooms: async (req, res) => {
     try {
-      const filter = {};
+      const {
+        block,
+        category,
+        gender,
+        minPrice,
+        maxPrice,
+        search,
+        page = 1,
+        limit = 10
+      } = req.query;
 
-      if (req.query.block && req.query.block !== "All") {
-        filter.block = req.query.block;
-      }
-      if (req.query.category && req.query.category !== "All") {
-        filter.category = req.query.category;
-      }
-      if (req.query.gender && req.query.gender !== "All") {
-        filter.gender = req.query.gender;
+      const query = {};
+
+      if (block) query.block = block;
+      if (category) query.category = category;
+      if (gender) query.gender = gender;
+
+      if (minPrice || maxPrice) {
+        query.pricePerSemester = {};
+        if (minPrice) query.pricePerSemester.$gte = Number(minPrice);
+        if (maxPrice) query.pricePerSemester.$lte = Number(maxPrice);
       }
 
-      if (req.query.search) {
-        filter.$or = [
-          { name: { $regex: req.query.search, $options: "i" } },
-          { roomNumber: { $regex: req.query.search, $options: "i" } }
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { roomNumber: { $regex: search, $options: "i" } }
         ];
       }
 
-      if (req.query.minPrice || req.query.maxPrice) {
-        filter.pricePerSemester = {};
-        if (req.query.minPrice) {
-          filter.pricePerSemester.$gte = Number(req.query.minPrice);
-        }
-        if (req.query.maxPrice) {
-          filter.pricePerSemester.$lte = Number(req.query.maxPrice);
-        }
-      }
+      const pageNum = parseInt(page, 10);
+      const limitNum = parseInt(limit, 10);
+      const skip = (pageNum - 1) * limitNum;
 
-      const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.limit) || 9;
-      const skip = (page - 1) * limit;
-
-      const total = await Room.countDocuments(filter);
-      const rooms = await Room.find(filter)
+      const totalRooms = await Room.countDocuments(query);
+      const rooms = await Room.find(query)
         .skip(skip)
-        .limit(limit)
+        .limit(limitNum)
         .sort({ createdAt: -1 });
 
       res.status(200).json({
         success: true,
-        total,
-        page,
-        pages: Math.ceil(total / limit),
         count: rooms.length,
+        total: totalRooms,
+        page: pageNum,
+        pages: Math.ceil(totalRooms / limitNum),
         data: rooms
       });
     } catch (error) {
@@ -59,7 +60,7 @@ const roomController = {
     }
   },
 
-  // GET /api/rooms/:id - Single dorm details
+  // GET /api/rooms/:id - Get single room by ID
   getRoomById: async (req, res) => {
     try {
       const room = await Room.findById(req.params.id);
@@ -69,6 +70,7 @@ const roomController = {
           message: "Room not found"
         });
       }
+
       res.status(200).json({
         success: true,
         data: room
@@ -81,11 +83,13 @@ const roomController = {
     }
   },
 
-  // POST /api/rooms - Create room (Checks duplicate room number)
+  // POST /api/rooms - Create new dormitory room
   createRoom: async (req, res) => {
     try {
-      const existing = await Room.findOne({ roomNumber: req.body.roomNumber });
-      if (existing) {
+      const { roomNumber } = req.body;
+
+      const existingRoom = await Room.findOne({ roomNumber });
+      if (existingRoom) {
         return res.status(400).json({
           success: false,
           message: "Room number already exists"
@@ -93,8 +97,10 @@ const roomController = {
       }
 
       const room = await Room.create(req.body);
+
       res.status(201).json({
         success: true,
+        message: "Room created successfully",
         data: room
       });
     } catch (error) {
@@ -105,7 +111,7 @@ const roomController = {
     }
   },
 
-  // PUT /api/rooms/:id - Update dorm
+  // PUT /api/rooms/:id - Update room details
   updateRoom: async (req, res) => {
     try {
       const room = await Room.findByIdAndUpdate(req.params.id, req.body, {
@@ -122,6 +128,7 @@ const roomController = {
 
       res.status(200).json({
         success: true,
+        message: "Room updated successfully",
         data: room
       });
     } catch (error) {
@@ -132,10 +139,11 @@ const roomController = {
     }
   },
 
-  // DELETE /api/rooms/:id - Safety check on delete
+  // DELETE /api/rooms/:id - Delete room with safety check
   deleteRoom: async (req, res) => {
     try {
       const room = await Room.findById(req.params.id);
+
       if (!room) {
         return res.status(404).json({
           success: false,
@@ -143,14 +151,15 @@ const roomController = {
         });
       }
 
-      if (room.occupiedBeds > 0) {
+      if (room.occupiedBeds && room.occupiedBeds > 0) {
         return res.status(400).json({
           success: false,
-          message: "Cannot delete room with active bed allocations"
+          message: "Cannot delete room with active bed occupants"
         });
       }
 
-      await Room.findByIdAndDelete(req.params.id);
+      await room.deleteOne();
+
       res.status(200).json({
         success: true,
         message: "Room deleted successfully"
@@ -163,7 +172,7 @@ const roomController = {
     }
   },
 
-  // POST /api/rooms/:id/reviews - Submit review
+  // POST /api/rooms/:id/reviews - Add review to room
   addReview: async (req, res) => {
     try {
       const { rating, comment, studentName } = req.body;
@@ -182,11 +191,16 @@ const roomController = {
         studentName: studentName || "Student"
       };
 
+      if (!room.reviews) {
+        room.reviews = [];
+      }
+
       room.reviews.push(review);
       await room.save();
 
       res.status(201).json({
         success: true,
+        message: "Review added successfully",
         data: room
       });
     } catch (error) {
