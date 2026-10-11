@@ -1,13 +1,18 @@
+
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/hostelDB";
-    const conn = await mongoose.connect(mongoUri);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (err) {
-    console.error("MongoDB connection failed:", err.message);
-    process.exit(1);
+    const mongoURI =
+      process.env.MONGO_URI ||
+      "mongodb://127.0.0.1:27017/hostelDB";
+
+    await mongoose.connect(mongoURI);
+
+    console.log("MongoDB Connected Successfully!");
+  } catch (error) {
+    console.log("MongoDB Error:", error.message);
+    throw error;
   }
 };
 
