@@ -1,45 +1,43 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
 
+// Load environment variables
+dotenv.config();
+
+// Attempt database connection
+const connectDB = require("./config/db");
+connectDB();
+
+// Initialize Express app
 const app = express();
 
-// Cross-Origin Resource Sharing (CORS)
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
-}));
+// Enable CORS
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
 
-// Body Parser Middleware
+// Enable JSON and form body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check Endpoint (Issue #1 Foundation)
-app.get('/api/health', (req, res) => {
+// Health Check API
+app.get("/api/health", (req, res) => {
   res.status(200).json({
-    status: 'OK',
-    service: 'XSHostel REST API',
-    version: '1.0.0',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    status: "OK",
+    service: "XSHostel REST API",
+    version: "1.0.0",
   });
 });
 
-// ========================================================
-// NOTE FOR TEAM MEMBERS:
-// Mount routes here as feature branches are implemented:
-// - Issue #3: app.use('/api/auth', authRoutes);
-// - Issue #5: app.use('/api/rooms', roomRoutes);
-// - Issue #6: app.use('/api/bookings', bookingRoutes);
-// - Issue #7: app.use('/api/users', userRoutes);
-// - Issue #8: app.use('/api/admin', adminRoutes);
-// ========================================================
+// Import and mount feature routes
+const userRoutes = require("./routes/userRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
 
-// 404 Fallback Handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route not found: ${req.originalUrl}`
-  });
-});
+app.use("/api/users", userRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 module.exports = app;
