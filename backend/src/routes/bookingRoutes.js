@@ -17,3 +17,17 @@ router.get("/:id", protect, bookingController.getBookingById);
 router.patch("/:id/cancel", protect, bookingController.cancelBooking);
 
 module.exports = router;
+const {
+  getMyBookings,
+  vacateBooking,
+} = require("../controllers/bookingController");
+const { protect } = require("../middleware/authMiddleware");
+
+// Student allocations ledger
+router.get("/my", protect, getMyBookings);
+
+// Room vacating endpoint (supports both :id/cancel and :id/vacate)
+router.patch("/:id/cancel", protect, vacateBooking);
+router.patch("/:id/vacate", protect, vacateBooking);
+
+module.exports = router;

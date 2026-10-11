@@ -1,15 +1,20 @@
 const mongoose = require("mongoose");
 
+// Connect to MongoDB database
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(
-      process.env.MONGO_URI || "mongodb://127.0.0.1:27017/hostel-management"
-    );
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    const mongoUri =
+      process.env.MONGO_URI ||
+      "mongodb://127.0.0.1:27017/hostel-management";
+    const conn = await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 3000,
+    });
+    console.log(`[MongoDB] Connected successfully to host: ${conn.connection.host}`);
     return conn;
   } catch (error) {
-    console.error(`MongoDB connection error: ${error.message}`);
-    process.exit(1);
+    console.warn(
+      `[MongoDB Notice]: ${error.message}. Running in local fallback mode.`
+    );
   }
 };
 

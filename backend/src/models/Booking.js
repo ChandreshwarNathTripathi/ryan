@@ -6,6 +6,7 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      uppercase: true,
       trim: true
     },
     user: {
@@ -37,12 +38,12 @@ const bookingSchema = new mongoose.Schema(
     },
     messPlan: {
       type: String,
-      enum: ["Standard 4-Meal", "Special Diet", "Room Only"],
+      enum: ["Standard 4-Meal", "Special Diet", "Room Only", "Standard 4-Meal Plan"],
       default: "Standard 4-Meal"
     },
     baseSemesterFee: {
       type: Number,
-      required: true
+      default: 32000
     },
     messFee: {
       type: Number,
@@ -54,7 +55,8 @@ const bookingSchema = new mongoose.Schema(
     },
     totalFee: {
       type: Number,
-      required: true
+      required: true,
+      default: 55000
     },
     status: {
       type: String,
@@ -66,6 +68,13 @@ const bookingSchema = new mongoose.Schema(
       enum: ["unpaid", "paid", "refunded"],
       default: "paid"
     },
+    vacatingDate: {
+      type: Date
+    },
+    vacatingReason: {
+      type: String,
+      default: ""
+    },
     emergencyContact: {
       name: { type: String },
       phone: { type: String },
@@ -75,4 +84,5 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Booking", bookingSchema);
+const Booking = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);
+module.exports = Booking;
