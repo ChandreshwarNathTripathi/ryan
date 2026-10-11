@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    passwordHash: {
+      type: String,
+    },
     role: {
       type: String,
       enum: ["student", "warden", "admin"],
@@ -70,24 +73,25 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  if (!this.isModified("password") && !this.isModified("passwordHash")) return next();
+  const raw = this.password || this.passwordHash;
+  if (raw) {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(raw, salt);
+    this.password = hash;
+    this.passwordHash = hash;
+  }
   next();
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  const current = this.password || this.passwordHash;
+  return await bcrypt.compare(enteredPassword, current);
 };
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
-
-userSchema.methods.toJSON = function () {
-  const userObj = this.toObject();
-  delete userObj.password;
-  return userObj;
+  const current = this.password || this.passwordHash;
+  return await bcrypt.compare(enteredPassword, current);
 };
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
