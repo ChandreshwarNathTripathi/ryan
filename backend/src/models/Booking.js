@@ -2,19 +2,12 @@ const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
   {
-    allocationId: {
-      type: String,
-      unique: true,
-      required: true
-// Hostel Room Allocation Schema
-const bookingSchema = new mongoose.Schema(
-  {
     bookingReference: {
       type: String,
       required: true,
       unique: true,
       uppercase: true,
-      trim: true,
+      trim: true
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -36,27 +29,25 @@ const bookingSchema = new mongoose.Schema(
     },
     academicYear: {
       type: String,
-      required: true,
       default: "2026-2027"
     },
     semester: {
       type: String,
-      required: true,
-      enum: ["Fall Semester", "Spring Semester", "Summer Term"]
+      enum: ["Fall Semester", "Spring Semester", "Summer Term"],
+      default: "Fall Semester"
     },
     messPlan: {
       type: String,
-      required: true,
-      enum: ["Standard 4-Meal", "Special Diet", "Room Only"],
+      enum: ["Standard 4-Meal", "Special Diet", "Room Only", "Standard 4-Meal Plan"],
       default: "Standard 4-Meal"
     },
     baseSemesterFee: {
       type: Number,
-      required: true
+      default: 32000
     },
     messFee: {
       type: Number,
-      required: true
+      default: 18000
     },
     cautionDeposit: {
       type: Number,
@@ -64,81 +55,33 @@ const bookingSchema = new mongoose.Schema(
     },
     totalFee: {
       type: Number,
-      required: true
-    },
-    emergencyContact: {
-      name: { type: String, required: true },
-      phone: { type: String, required: true },
-      relationship: { type: String, required: true }
+      required: true,
+      default: 55000
     },
     status: {
       type: String,
-      enum: ["confirmed", "checked_in", "cancelled", "vacated"],
+      enum: ["pending", "confirmed", "checked_in", "vacated", "cancelled"],
       default: "confirmed"
-    }
-  },
-  { timestamps: true }
-);
-
-module.exports = mongoose.model("Booking", bookingSchema);
-      required: true,
     },
-    roomNumber: {
+    paymentStatus: {
       type: String,
-      default: "A-101",
-    },
-    block: {
-      type: String,
-      default: "Block A (Boys)",
-    },
-    sharing: {
-      type: String,
-      default: "Double Sharing",
-    },
-    academicYear: {
-      type: String,
-      default: "2026-2027",
-    },
-    semester: {
-      type: String,
-      default: "Fall Semester",
-    },
-    startDate: {
-      type: Date,
-      required: true,
-    },
-    endDate: {
-      type: Date,
-      required: true,
-    },
-    messPlan: {
-      type: String,
-      default: "Standard 4-Meal Plan",
-    },
-    totalFee: {
-      type: Number,
-      default: 55000,
-    },
-    cautionDeposit: {
-      type: Number,
-      default: 5000,
-    },
-    status: {
-      type: String,
-      enum: ["confirmed", "checked_in", "vacated", "cancelled"],
-      default: "confirmed",
+      enum: ["unpaid", "paid", "refunded"],
+      default: "paid"
     },
     vacatingDate: {
-      type: Date,
+      type: Date
     },
     vacatingReason: {
       type: String,
-      default: "",
+      default: ""
     },
+    emergencyContact: {
+      name: { type: String },
+      phone: { type: String },
+      relationship: { type: String }
+    }
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Booking = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);
