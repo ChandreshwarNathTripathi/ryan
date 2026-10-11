@@ -182,7 +182,7 @@ body {
 /* Overview Statistics Cards */
 .stats-grid {
   display: grid;
-  grid-templateColumns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
   margin-bottom: 32px;
 }

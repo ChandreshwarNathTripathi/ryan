@@ -1,14 +1,10 @@
-const dotenv = require('dotenv');
-dotenv.config();
+// Import the configured Express app
+const app = require("./app");
 
-const app = require('./app');
+// Define port number from environment variable or fallback to 5000
 const PORT = process.env.PORT || 5000;
 
+// Start server and listen for incoming HTTP requests
 app.listen(PORT, () => {
-  console.log(`====================================================`);
-  console.log(`  XSHostel REST API Server is running!               `);
-  console.log(`  Environment : ${process.env.NODE_ENV || 'development'}`);
-  console.log(`  Port        : ${PORT}`);
-  console.log(`  Health API  : http://localhost:${PORT}/api/health`);
-  console.log(`====================================================`);
+  console.log(`XSHostel backend running on http://localhost:${PORT}`);
 });
