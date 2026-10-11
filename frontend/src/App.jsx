@@ -7,11 +7,12 @@ import Auth from "./pages/Auth";
 import MyBookings from "./pages/MyBookings";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import AdminLayout from "./pages/admin/AdminLayout";
 
 // ==============================================================================
 // App — Main Root Component for XSHostel
 // Implements Issue #4 Smart Campus UI Design System, Layout, Navbar, Footer,
-// Home Page, Room Explorer, and Route Handling.
+// Home Page, Room Explorer, Auth, and Integrated Chief Warden Console (/admin).
 // ==============================================================================
 function App() {
   // 1. Navigation Route State (default to "/" for Home page)
@@ -111,7 +112,15 @@ function App() {
       role: newRole,
       name: newRole === "admin" ? "Dr. Alok Verma" : "Chandra Tripathi",
     });
-    setToastMessage(`Role switched to ${newRole === "admin" ? "Chief Warden (Admin)" : "Student Resident"}.`);
+
+    if (newRole === "student" && currentPath.startsWith("/admin")) {
+      handleNavigate("/");
+      setToastMessage("Switched to Student Role. Automatically exited /admin console.");
+    } else {
+      setToastMessage(
+        `Role switched to ${newRole === "admin" ? "Chief Warden (Admin)" : "Student Resident"}.`
+      );
+    }
     setTimeout(() => setToastMessage(""), 4000);
   };
 
@@ -132,7 +141,10 @@ function App() {
             <span>Authentication Simulation: </span>
             {user ? (
               <strong className={`role-tag-pill ${user.role}`}>
-                {user.role === "admin" ? "🛡️ Chief Warden (Admin)" : "🎓 Student Resident"} ({user.name})
+                {user.role === "admin" || user.role === "warden"
+                  ? "🛡️ Chief Warden (Admin)"
+                  : "🎓 Student Resident"}{" "}
+                ({user.name})
               </strong>
             ) : (
               <strong className="role-tag-pill">Logged Out</strong>
@@ -140,13 +152,34 @@ function App() {
           </div>
           <div className="role-actions">
             {user ? (
-              <button
-                type="button"
-                className="btn-role-toggle"
-                onClick={handleToggleRole}
-              >
-                🔄 Toggle to {user.role === "student" ? "Admin Mode" : "Student Mode"}
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="btn-role-toggle"
+                  onClick={handleToggleRole}
+                >
+                  🔄 Toggle to {user.role === "student" ? "Admin Mode" : "Student Mode"}
+                </button>
+                {user.role === "admin" || user.role === "warden" ? (
+                  currentPath.startsWith("/admin") ? (
+                    <button
+                      type="button"
+                      className="btn-launch-student"
+                      onClick={() => handleNavigate("/")}
+                    >
+                      ← Return to Public Campus Home
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn-launch-admin"
+                      onClick={() => handleNavigate("/admin")}
+                    >
+                      Go to Chief Warden Console (/admin) →
+                    </button>
+                  )
+                ) : null}
+              </>
             ) : (
               <button
                 type="button"
@@ -199,23 +232,26 @@ function App() {
 
         {currentPath === "/profile" && <Profile onNavigate={handleNavigate} />}
 
-        {currentPath.startsWith("/admin") && (
-          <div className="rooms-page-container">
-            <div className="empty-state-box">
-              <span className="empty-icon">🛡️</span>
-              <h2>Chief Warden Operations Console</h2>
-              <p>Warden privileged operations active. Managing campus dormitories and policies.</p>
-              <button
-                type="button"
-                className="btn-primary-action"
-                style={{ marginTop: "16px" }}
-                onClick={() => handleNavigate("/")}
-              >
-                ← Return to Public Campus Home
-              </button>
+        {currentPath.startsWith("/admin") &&
+          (user && (user.role === "admin" || user.role === "warden") ? (
+            <AdminLayout onExitToPublicSite={() => handleNavigate("/")} />
+          ) : (
+            <div className="rooms-page-container">
+              <div className="empty-state-box">
+                <span className="empty-icon">⛔</span>
+                <h2>Access Restricted</h2>
+                <p>Chief Warden privileged credentials required to access /admin.</p>
+                <button
+                  type="button"
+                  className="btn-primary-action"
+                  style={{ marginTop: "16px" }}
+                  onClick={() => handleNavigate("/")}
+                >
+                  ← Return to Public Campus Home
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          ))}
 
         {/* 404 Not Found fallback for any other route */}
         {currentPath !== "/" &&
