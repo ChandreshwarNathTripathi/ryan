@@ -2,33 +2,42 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 
-// Load environment variables from .env file
+// Load environment variables
 dotenv.config();
 
-// Create Express application
+// Attempt database connection
+const connectDB = require("./config/db");
+connectDB();
+
+// Initialize Express app
 const app = express();
 
-// Allow frontend to communicate with backend
+// Enable CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173"
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
   })
 );
 
-// Allow Express to parse incoming JSON data
+// Enable JSON and form body parsers
 app.use(express.json());
-
-// Allow Express to parse incoming form data
 app.use(express.urlencoded({ extended: true }));
 
-// Simple health check route to verify backend is running
+// Health Check API
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "OK",
     service: "XSHostel REST API",
-    version: "1.0.0"
+    version: "1.0.0",
   });
 });
 
-// Export app for use in server.js
+// Import and mount feature routes
+const userRoutes = require("./routes/userRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
+
+app.use("/api/users", userRoutes);
+app.use("/api/bookings", bookingRoutes);
+
 module.exports = app;
